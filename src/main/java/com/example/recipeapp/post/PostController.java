@@ -1,6 +1,7 @@
 package com.example.recipeapp.post;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +24,11 @@ public class PostController {
         return ResponseEntity.ok(postService.searchPostById(postId));
     }
 
-    @GetMapping("/posts")
+    @GetMapping("/search")
     @CrossOrigin
-    public ResponseEntity<List<Post>> searchPosts(@RequestParam(required = false) String kwd,
-                                                  @RequestParam(required = false) String firstName,
-                                                  @RequestParam(required = false) String lastName) {
-        return ResponseEntity.ok(postService.searchPosts(kwd, firstName, lastName));
+    public ResponseEntity<List<Post>> searchPosts(
+            @RequestParam(value = "kwd", required = false) String kwd) {
+        return ResponseEntity.ok(postService.searchPosts(kwd));
     }
 
     @PostMapping("/createPost")
@@ -48,4 +48,5 @@ public class PostController {
         postService.deletePostById(postId);
         return ResponseEntity.accepted().build();
     }
+
 }

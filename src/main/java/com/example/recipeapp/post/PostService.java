@@ -25,18 +25,19 @@ public class PostService {
         return postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Post with id: [" + postId + "] not found"));
     }
 
-    public List<Post> searchPosts(String kwd, String firstName, String lastName) {
-        // If none of the search parameters are provided, return all posts.
-        if ((kwd == null || kwd.isEmpty()) && (firstName == null || firstName.isEmpty()) && (lastName == null || lastName.isEmpty())) {
+    public List<Post> searchPosts(String kwd) {
+        // If no keyword is provided, return all posts.
+        if (kwd == null || kwd.isEmpty()) {
             return postRepository.findAll();
         }
 
-        // Build a TextCriteria that will be used to search across multiple fields.
-        TextCriteria textCriteria = TextCriteria.forDefaultLanguage();
+        // Split the keyword by space to separate potential first and last names.
+        String[] nameParts = kwd.split(" ");
+        String firstName = nameParts.length > 0 ? nameParts[0] : "";
+        String lastName = nameParts.length > 1 ? nameParts[1] : "";
 
-        if (kwd != null && !kwd.isEmpty()) {
-            textCriteria.matching(kwd);
-        }
+        // Build a TextCriteria that will be used to search across multiple fields.
+        TextCriteria textCriteria = TextCriteria.forDefaultLanguage().matching(kwd);
 
         // Find all User objects that match the firstName and lastName criteria.
         List<User> users = findUsersByFirstAndLastName(firstName, lastName);
@@ -47,9 +48,10 @@ public class PostService {
         // Find all Post objects that match the textCriteria.
         List<Post> allPosts = postRepository.findByKwd(textCriteria);
 
-        // Filter the posts to include only those with a user with the specified userIds.
+        // Filter the posts to include only those with a user with the specified userIds or matching the keyword.
         List<Post> filteredPosts = allPosts.stream()
-                .filter(post -> userIds.contains(post.getUserId()))
+                .filter(post -> userIds.contains(post.getUserId()) || post.getTitle().contains(kwd) ||
+                        post.getCategory().toString().contains(kwd) || post.getIngredients().contains(kwd))
                 .collect(Collectors.toList());
 
         return filteredPosts;
@@ -58,10 +60,14 @@ public class PostService {
     private List<User> findUsersByFirstAndLastName(String firstName, String lastName) {
         if (firstName == null || firstName.isEmpty()) {
             firstName = ".*"; // Match any firstName if not provided.
+        } else {
+            firstName = "(?i)" + firstName; // Make regex case-insensitive.
         }
 
         if (lastName == null || lastName.isEmpty()) {
             lastName = ".*"; // Match any lastName if not provided.
+        } else {
+            lastName = "(?i)" + lastName; // Make regex case-insensitive.
         }
 
         // Use regex to find users with matching firstName and lastName.
