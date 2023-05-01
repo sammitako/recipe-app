@@ -1,0 +1,72 @@
+package com.example.recipeapp.post;
+
+public enum Category {
+
+    AMERICAN("AMERICAN"),
+    AFRICAN("AFRICAN"),
+    AUSTRALIAN("AUSTRALIAN"),
+    ARGENTINE("ARGENTINE"),
+
+    BANGLADESHI("BANGLADESHI"),
+    BURMESE("BURMESE"),
+    CHILEAN("CHILEAN"),
+    ECUADORIAN("ECUADORIAN"),
+    ETHIOPIAN("ETHIOPIAN"),
+    BRAZILIAN("BRAZILIAN"),
+    CHINESE("CHINESE"),
+
+
+    CANADIAN("CANADIAN"),
+    ENGLISH("ENGLISH"),
+    FRENCH("FRENCH"),
+    FINNISH("FINNISH"),
+    GREEK("GREEK"),
+    HUNGARIAN("HUNGARIAN"),
+    ICELANDIC("ICELANDIC"),
+    IRANIAN("IRANIAN"),
+    IRISH("IRISH"),
+    ISRAELI("ISRAELI"),
+
+
+    GERMAN("GERMAN"),
+    INDIAN("INDIAN"),
+    INDONESIAN("INDONESIAN"),
+    ITALIAN("ITALIAN"),
+    JAPANESE("JAPANESE"),
+    JAMAICAN("JAMAICAN"),
+    MALAYSIAN("MALAYSIAN"),
+    MALTESE("MALTESE"),
+    MEXICAN("MEXICAN"),
+    MOROCCAN("MOROCCAN"),
+    NEPALESE("NEPALESE"),
+    NORWEGIAN("NORWEGIAN"),
+
+    KOREAN("KOREAN"),
+    PAKISTANI("PAKISTANI"),
+    PALESTINIAN("PALESTINIAN"),
+    PERUVIAN("PERUVIAN"),
+    PHILIPPINE("PHILIPPINE"),
+    POLISH("POLISH"),
+    PORTUGUESE("PORTUGUESE"),
+    RUSSIAN("RUSSIAN"),
+    SAMI("SAMI"),
+    SICILIAN("SICILIAN"),
+    SINGAPOREAN("SINGAPOREAN"),
+    SCOTTISH("SCOTTISH"),
+    SOUTH_AFRICAN("SOUTH_AFRICAN"),
+    SPANISH("SPANISH"),
+    SRI_LANKAN("SRI-LANKAN"),
+    VIETNAMESE("VIETNAMESE"),
+    THAI("THAI"),
+    TIBETAN("TIBETAN"),
+    UZBEK("UZBEK");
+    private final String category;
+
+    Category(String category) {
+        this.category = category;
+    }
+
+    public String getCategory() {
+        return this.category;
+    }
+}
