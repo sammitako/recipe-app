@@ -7,3 +7,6 @@ spring:
       port: 27017
       database: recipe-api-db
       authentication-database: admin
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
