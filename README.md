@@ -14,7 +14,10 @@ Recipe app is a platform where users can upload their recipes and search for rec
 - Framework: Spring Boot, Next.js (React)
 - Database: MongoDB
 - Environment: Docker
+- Hosting: Local server
+- Software architectural style: REST API
 - Libraries: NextAuth.js, Cloudinary, Material UI
+
 
 ## Getting Started
 1. Docker should be installed on local machine.
