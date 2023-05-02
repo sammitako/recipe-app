@@ -16,7 +16,6 @@ Recipe app is a platform where users can upload their recipes and search for rec
     Make sure installed containers are running: `mongo_db` and `mongo_express`
 <br />
 2. Create database called `recipe-api-db` at http://localhost:8081.
-![img.png](img.png)
 <br />
 3. Create the index on post and user fields:</br>
    1. Open your web browser and go to http://localhost:8081.
@@ -43,11 +42,11 @@ Recipe app is a platform where users can upload their recipes and search for rec
 
 ## About MongoDB Search
 <br />
-1. **Stop Words**: MongoDB's full-text search feature ignores certain common words known as stop words (like "is", "on", "the", "a", etc.). These are words that appear frequently in text and are not useful for search. This might be the reason why searching for "only" is not returning any results.
-   <br />
-2. **Tokenization**: MongoDB breaks down (tokenizes) strings into individual words based on language-specific rules. For languages that use space-delimited words (like English), MongoDB tokenizes the string at whitespace and most punctuation. MongoDB's text search may not work as expected with numbers, especially if they are included in text strings.
-   <br />
-3. **Case Sensitivity**: By default, MongoDB's text search is case-insensitive. It also diacritic-insensitive (it treats characters with diacritical marks as their base character). This means a search for "Korean" would also match "korean". However, in your example, "30" and "only" should be matched as they are.
+1. <strong>Stop Words</strong> <br />MongoDB's full-text search feature ignores certain common words known as stop words (like "is", "on", "the", "a", etc.). These are words that appear frequently in text and are not useful for search. This might be the reason why searching for "only" is not returning any results.
+<br />
+2. <strong>Tokenization</strong><br /> MongoDB breaks down (tokenizes) strings into individual words based on language-specific rules. For languages that use space-delimited words (like English), MongoDB tokenizes the string at whitespace and most punctuation. MongoDB's text search may not work as expected with numbers, especially if they are included in text strings.
+<br />
+3. <strong>Case Sensitivity</strong><br /> By default, MongoDB's text search is case-insensitive. It also diacritic-insensitive (it treats characters with diacritical marks as their base character). This means a search for "Korean" would also match "korean". However, in your example, "30" and "only" should be matched as they are.
 
 ### 1. MongoDB's full-text search
 MongoDB's full-text search does not always work with numbers especially if they are embedded within text strings.
