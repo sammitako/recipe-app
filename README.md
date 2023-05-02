@@ -3,10 +3,10 @@ Recipe app is a platform where users can upload their recipes and search for rec
 
 ### Features
 - Login and logout
-- Update account
-- Create recipes
-- Update recipes (restricted to my post only)
-- Delete recipes (restricted to my post only)
+- Update my account
+- Create my recipes
+- Update my recipes (restricted to my post only)
+- Delete my recipes (restricted to my post only)
 - View recipes
 - Search recipes
 
