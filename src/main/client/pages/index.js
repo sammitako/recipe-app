@@ -1,16 +1,15 @@
-import Navbar from "main/components/Navbar";
-import PostList from "main/components/PostList";
+import Feed from "main/components/Feed";
 import Head from "next/head";
 
-export default function Home() {
+export default function Home({ children }) {
   return (
     <>
       <Head>
         <title>Recipe App</title>
       </Head>
-      <Navbar />
+
       <main>
-        <PostList />
+        <Feed />
       </main>
     </>
   );
