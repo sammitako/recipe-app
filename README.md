@@ -1,4 +1,4 @@
-# About The Project
+# About The Final Project
 Recipe app is a platform where users can upload their recipes and search for recipes posted by other users.
 
 ### Built With
@@ -13,7 +13,7 @@ Recipe app is a platform where users can upload their recipes and search for rec
     ```shell
     docker compuse up
     ```
-    Make sure installed containers are running: `mongo_db` and `mongo_express`
+   Make sure installed containers are running: `mongo_db` and `mongo_express`
 2. Create database called `recipe-api-db` at http://localhost:8081.
 3. Create the index on post and user fields:</br>
       1) Open your web browser and go to http://localhost:8081.
