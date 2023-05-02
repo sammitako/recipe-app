@@ -1,12 +1,20 @@
 # About The Final Project
 Recipe app is a platform where users can upload their recipes and search for recipes posted by other users.
 
+### Features
+- Login and logout
+- Update account
+- Create recipes
+- Update recipes (restricted to my post only)
+- Delete recipes (restricted to my post only)
+- View recipes
+- Search recipes
+
 ### Built With
-- Spring Boot
-- Next.js
-- NextAuth.js
-- MongoDB
-- Tailwind CSS
+- Framework: Spring Boot, Next.js (React)
+- Database: MongoDB
+- Environment: Docker
+- Libraries: NextAuth.js, Cloudinary, Material UI
 
 ## Getting Started
 1. Docker should be installed on local machine.
