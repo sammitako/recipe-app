@@ -21,6 +21,6 @@ public class Post {
     private String content;
     private Category category;
     private List<String> ingredients;
-    private String photoUrl;
+    private String coverImgUrl;
     private Date createdAt;
 }
