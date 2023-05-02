@@ -9,7 +9,5 @@ import java.util.List;
 
 @Repository
 public interface PostRepository extends MongoRepository<Post, String> {
-//    @Query("{ $text: { $search: ?0 } }")
-//    List<Post> findByKwd(String kwd);
-    List<Post> findByKwd(TextCriteria textCriteria);
+    List<Post> findByUserIdIn(List<String> userIds);
 }

@@ -1,6 +1,7 @@
 package com.example.recipeapp.user;
 
 import com.example.recipeapp.exception.ResourceNotFoundException;
+import com.example.recipeapp.post.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,12 @@ public class UserService {
 
     public List<User> getUsers() {
         return userRepository.findAll();
+    }
+    public User getUserById(String id) {
+        return userRepository.findById(id).orElse(null);
+    }
+    public User createUser(User user) {
+        return userRepository.save(user);
     }
 
     public User updateUser(User user) {

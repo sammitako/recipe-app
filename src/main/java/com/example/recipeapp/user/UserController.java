@@ -16,14 +16,23 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsers());
     }
 
-    @PostMapping("/updateUser")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<User> getUserById(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.getUserById(userId));
+    }
+    @PostMapping("/createUser")
+    @CrossOrigin
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        return ResponseEntity.ok(userService.createUser(user));
+    }
+    @PutMapping("/updateUser")
     public ResponseEntity<User> updateUser(
             @RequestBody User user
     ) {
         return ResponseEntity.ok(userService.updateUser(user));
     }
 
-    @DeleteMapping("/deleteUser/userId}")
+    @DeleteMapping("/deleteUser/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
         userService.deleteUserById(userId);
         return ResponseEntity.accepted().build();

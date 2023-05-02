@@ -27,7 +27,7 @@ public class PostController {
     @GetMapping("/search")
     @CrossOrigin
     public ResponseEntity<List<Post>> searchPosts(
-            @RequestParam(value = "kwd", required = false) String kwd) {
+            @RequestParam(required = false) String kwd) { // http://localhost:8080/api/v1/search?kwd=searchingText
         return ResponseEntity.ok(postService.searchPosts(kwd));
     }
 
@@ -36,7 +36,7 @@ public class PostController {
     public ResponseEntity<Post> createPost(@RequestBody Post post) {
         return ResponseEntity.ok(postService.createPost(post));
     }
-    @PostMapping("/updatePost")
+    @PutMapping("/updatePost")
     public ResponseEntity<Post> updatePost(
             @RequestBody Post post
     ) {
