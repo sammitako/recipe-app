@@ -1,4 +1,4 @@
-import { Box, Container } from "@mui/material";
+import { Box, Container, Typography } from "@mui/material";
 import CreateButton from "main/components/CreateButton";
 import Layout from "main/components/Layout";
 import PostList from "main/components/PostList";
@@ -8,7 +8,14 @@ import React from "react";
 const index = () => {
   return (
     <Layout>
-      <Container>
+      <Container sx={{ mt: 20 }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ textAlign: "center", mb: -10 }}
+        >
+          My Recipes
+        </Typography>
         <Box sx={{ maxWidth: "sm", width: "100%", margin: "0 auto", mb: 10 }}>
           <SearchBar />
         </Box>
