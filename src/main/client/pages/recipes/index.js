@@ -12,7 +12,7 @@ const index = () => {
         <Typography
           variant="h4"
           gutterBottom
-          sx={{ textAlign: "center", mb: -10 }}
+          sx={{ textAlign: "center", mb: -15 }}
         >
           My Recipes
         </Typography>

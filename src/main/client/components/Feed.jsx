@@ -1,4 +1,4 @@
-import { Box, Container } from "@mui/material";
+import { Box, Container, Typography } from "@mui/material";
 import React from "react";
 import SearchBar from "./SearchBar";
 import CreateButton from "./CreateButton";
@@ -10,6 +10,13 @@ const Feed = () => {
     <Layout>
       <Container>
         <Box sx={{ maxWidth: "sm", width: "100%", margin: "0 auto" }}>
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{ textAlign: "center", mt: 20, mb: -15 }}
+          >
+            Search any recipes
+          </Typography>
           <SearchBar />
           <CreateButton />
         </Box>
