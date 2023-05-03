@@ -8,22 +8,11 @@ import DialogTitle from "@mui/material/DialogTitle";
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 import { Autocomplete, Box, Chip } from "@mui/material";
-import { ingredientList } from "../libs/ingredients";
+import { topFilms } from "../libs/data";
 import { useDropzone } from "react-dropzone";
 import { makeStyles } from "@mui/styles";
 import Image from "next/image";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import axios from "axios";
-// import cloudinary from "cloudinary";
-import moment from "moment";
-import { toast } from "react-hot-toast";
-// import { v4 as uuidv4 } from "uuid";
-
-// cloudinary.v2.config({
-//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-//   api_key: process.env.CLOUDINARY_API_KEY,
-//   api_secret: process.env.CLOUDINARY_API_SECRET,
-// });
 
 const useStyles = makeStyles(() => ({
   dropzone: {
@@ -68,12 +57,15 @@ const img = {
   height: "100%",
 };
 
-export default function CreateButton() {
+export default function UpdateButton({
+  updateModalOpen,
+  setUpdateModalOpen,
+  postId,
+}) {
   const classes = useStyles();
-  const [open, setOpen] = useState(false);
   const [file, setFile] = useState([]);
-  const [categoryList, setCategoryList] = useState([]);
   const [post, setPost] = useState({
+    id: "",
     userId: "",
     userFirstName: "",
     userLastName: "",
@@ -115,101 +107,7 @@ export default function CreateButton() {
     </div>
   ) : null;
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setPost({
-      userId: "",
-      userFirstName: "",
-      userLastName: "",
-      title: "",
-      category: "",
-      ingredients: [],
-      content: "",
-      coverImgUrl: "",
-      createdAt: "",
-    });
-    setOpen(false);
-  };
-
-  const handleChange = (event) => {
-    setPost({ ...post, [event.target.name]: event.target.value });
-  };
-
-  const fetchCategoryList = async () => {
-    try {
-      const response = await axios.get(
-        process.env.NEXT_PUBLIC_BASE_API_URL + "/categories"
-      );
-      setCategoryList(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const uploadImageToCloudinary = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append(
-      "upload_preset",
-      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
-    );
-
-    try {
-      const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-      return response.data.secure_url;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const createUser = async (e) => {
-    e.preventDefault();
-
-    const coverImgUrl = await uploadImageToCloudinary(file);
-    const updatedPost = {
-      ...post,
-      userId: "3",
-      userFirstName: "Hansaem",
-      userLastName: "Park",
-      coverImgUrl,
-      createdAt: moment().toISOString(),
-    };
-
-    try {
-      const response = await axios.post(
-        process.env.NEXT_PUBLIC_BASE_API_URL + "/createPost",
-        updatedPost,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      toast.success("Thanks for sharing!");
-      console.log(response.data);
-    } catch (error) {
-      if (error.response) {
-        console.log(error.response);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-      }
-    }
-
-    setOpen(false);
-  };
-
-  useEffect(() => {
-    fetchCategoryList();
-  }, []);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
@@ -222,21 +120,10 @@ export default function CreateButton() {
         display: "flex",
         justifyContent: "center",
         width: "100%",
-        mt: 3,
-        mb: 5,
       }}
     >
-      <Button
-        variant="text"
-        startIcon={<AddIcon />}
-        onClick={handleClickOpen}
-        sx={{ height: 50 }}
-        fullWidth
-      >
-        Share your recipe
-      </Button>
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Share my recipe</DialogTitle>
+      <Dialog open={updateModalOpen} onClose={() => setUpdateModalOpen(false)}>
+        <DialogTitle>Update my recipe</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
             To share your recipe, you will need a cover photo. Please enter all
@@ -244,44 +131,34 @@ export default function CreateButton() {
           </DialogContentText>
           <TextField
             sx={{ mb: 2 }}
-            required
             autoFocus
             margin="dense"
             id="title"
             label="Title"
             fullWidth
             variant="outlined"
-            name="title"
-            value={post.title}
-            onChange={(e) => handleChange(e)}
+            defaultValue="Hello World!"
+            required
+            InputLabelProps={{
+              shrink: true,
+            }}
           />
 
           <Autocomplete
             sx={{ mb: 2 }}
-            required
             disablePortal
             fullWidth
             id="combo-box-demo"
-            options={categoryList.map((category) => category)}
+            options={topFilms.map((option) => option.title)}
+            defaultValue={topFilms[5].title}
             renderInput={(params) => <TextField {...params} label="Category" />}
-            name="category"
-            value={post.category}
-            onChange={(event, newValue) => {
-              setPost((prevState) => ({ ...prevState, category: newValue }));
-            }}
           />
           <Autocomplete
             sx={{ mb: 2.5 }}
-            required
             multiple
             id="tags-filled"
-            name="ingredients"
-            value={post.ingredients}
-            onChange={(event, newValue) => {
-              setPost((prevState) => ({ ...prevState, ingredients: newValue }));
-            }}
-            options={ingredientList.map((incredient) => incredient)}
-            // defaultValue={[topFilms[13].title]}
+            options={topFilms.map((option) => option.title)}
+            defaultValue={[topFilms[12].title, topFilms[13].title]}
             freeSolo
             renderTags={(value, getTagProps) =>
               value.map((option, index) => (
@@ -303,27 +180,22 @@ export default function CreateButton() {
           />
           <TextField
             required
+            InputLabelProps={{
+              shrink: true,
+            }}
             fullWidth
             id="outlined-multiline-flexible"
             label="Recipe"
-            placeholder="Share your method"
+            defaultValue="Share your method"
             multiline
             rows={10}
-            name="content"
-            value={post.content}
-            onChange={(e) => handleChange(e)}
           />
           <section className="container">
             <div
               style={{ cursor: "pointer" }}
               {...getRootProps({ className: classes.dropzone })}
             >
-              <input
-                name="coverImgUrl"
-                value={post.coverImgUrl}
-                onChange={(e) => handleChange(e)}
-                {...getInputProps()}
-              />
+              <input {...getInputProps()} />
               <p>
                 Drag and drop a cover image file here, or click to select file
               </p>
@@ -335,8 +207,8 @@ export default function CreateButton() {
           </section>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={createUser}>Post</Button>
+          <Button onClick={() => setUpdateModalOpen(false)}>Cancel</Button>
+          <Button onClick={() => setUpdateModalOpen(false)}>Update</Button>
         </DialogActions>
       </Dialog>
     </Box>

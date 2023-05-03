@@ -2,6 +2,12 @@ import { Grid, Box } from "@mui/material";
 import PostCard from "./PostCard";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { styled } from "@mui/system";
+import { Blocks } from "react-loader-spinner";
+
+const StyledGridItem = styled(Grid)(({ theme }) => ({
+  display: "flex",
+}));
 
 const PostList = () => {
   // Assuming posts is an array of your 20 PostCard data
@@ -19,6 +25,8 @@ const PostList = () => {
       console.log(response.data);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -28,18 +36,29 @@ const PostList = () => {
 
   return (
     <Box sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
-      <Grid
-        container
-        rowSpacing={3}
-        columnSpacing={{ xs: 2, sm: 3 }}
-        justifyContent="center"
-      >
-        {dummy?.map((post, index) => (
-          <Grid item key={index}>
-            <PostCard />
-          </Grid>
-        ))}
-      </Grid>
+      {!loading ? (
+        <Grid
+          container
+          rowSpacing={3}
+          columnSpacing={{ xs: 2, sm: 3 }}
+          justifyContent="center"
+        >
+          {posts?.map((post, index) => (
+            <StyledGridItem item key={post.id}>
+              <PostCard post={post} style={{ height: "100%" }} />
+            </StyledGridItem>
+          ))}
+        </Grid>
+      ) : (
+        <Blocks
+          visible={true}
+          height="80"
+          width="80"
+          ariaLabel="blocks-loading"
+          wrapperStyle={{}}
+          wrapperClass="blocks-wrapper"
+        />
+      )}
     </Box>
   );
 };

@@ -15,6 +15,7 @@ import { Chip } from "@mui/material";
 // import Image from "mui-image";
 import Image from "next/image";
 import SettingButton from "./SettingButton";
+import Moment from "react-moment";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -26,53 +27,56 @@ const ExpandMore = styled((props) => {
     duration: theme.transitions.duration.shortest,
   }),
 }));
-const PostCard = (
-  {
-    // author,
-    // createdAt,
-    // title,
-    // content,
-    // category,
-    // ingredients,
-    // coverImgUrl,
-  }
-) => {
+const PostCard = ({ post }) => {
+  const {
+    id,
+    userFirstName,
+    userLastName,
+    createdAt,
+    title,
+    content,
+    category,
+    ingredients,
+    coverImgUrl,
+  } = post;
+  const userFullName = userFirstName.concat(" ", userLastName);
   const [expanded, setExpanded] = useState(false);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
-
   return (
     <Card sx={{ maxWidth: 345 }}>
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-            R
+            {userFirstName[0]}
           </Avatar>
         }
-        action={<SettingButton />}
-        title="Shrimp and Chorizo Paella"
-        subheader="September 14, 2016"
+        action={<SettingButton postId={id} />}
+        title={userFullName}
+        subheader={
+          <Moment format="MMM D, YYYY" withTitle>
+            {createdAt}
+          </Moment>
+        }
       />
 
       <Image
-        width={500}
-        height={500}
-        layout="responsive"
+        width={400}
+        height={200}
         priority
-        src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80"
+        src={coverImgUrl}
         alt="Paella dish"
       />
-      <CardContent>
-        <Typography variant="body1">Delicious Chiken</Typography>
+      <CardContent style={{ minHeight: "100px" }}>
+        <Typography variant="body1">{title}</Typography>
         <Typography variant="body2" color="text.secondary">
-          Onion, Carrot, 1/3 Water, Vegetable stock, Beef, Garlic, Noodle,
-          Mushroom
+          {ingredients.join(", ")}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
-        <Chip label="KOREAN" variant="outlined" />
+        <Chip label={category} variant="outlined" />
         <ExpandMore
           expand={expanded}
           onClick={handleExpandClick}
@@ -85,32 +89,7 @@ const PostCard = (
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
           <Typography paragraph>Method:</Typography>
-          <Typography paragraph>
-            Heat 1/2 cup of the broth in a pot until simmering, add saffron and
-            set aside for 10 minutes.
-          </Typography>
-          <Typography paragraph>
-            Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet
-            over medium-high heat. Add chicken, shrimp and chorizo, and cook,
-            stirring occasionally until lightly browned, 6 to 8 minutes.
-            Transfer shrimp to a large plate and set aside, leaving chicken and
-            chorizo in the pan. Add pimentón, bay leaves, garlic, tomatoes,
-            onion, salt and pepper, and cook, stirring often until thickened and
-            fragrant, about 10 minutes. Add saffron broth and remaining 4 1/2
-            cups chicken broth; bring to a boil.
-          </Typography>
-          <Typography paragraph>
-            Add rice and stir very gently to distribute. Top with artichokes and
-            peppers, and cook without stirring, until most of the liquid is
-            absorbed, 15 to 18 minutes. Reduce heat to medium-low, add reserved
-            shrimp and mussels, tucking them down into the rice, and cook again
-            without stirring, until mussels have opened and rice is just tender,
-            5 to 7 minutes more. (Discard any mussels that don&apos;t open.)
-          </Typography>
-          <Typography>
-            Set aside off of the heat to let rest for 10 minutes, and then
-            serve.
-          </Typography>
+          <Typography paragraph>{content}</Typography>
         </CardContent>
       </Collapse>
     </Card>

@@ -15,7 +15,7 @@ const Feed = () => {
             gutterBottom
             sx={{ textAlign: "center", mt: 20, mb: -15 }}
           >
-            Search any recipes
+            What&apos;s your dinner plan?
           </Typography>
           <SearchBar />
           <CreateButton />
