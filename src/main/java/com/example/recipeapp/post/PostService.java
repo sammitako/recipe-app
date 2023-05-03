@@ -13,10 +13,7 @@ import org.springframework.data.mongodb.core.query.TextQuery;
 
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -28,7 +25,16 @@ public class PostService {
     private final MongoTemplate mongoTemplate;
 
     public List<Post> getPosts() {
-        return postRepository.findAll();
+        List<Post> posts = postRepository.findAll();
+        for (Post post : posts) {
+            Optional<User> userOptional = userRepository.findById(post.getUserId());
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                post.setUserFirstName(user.getFirstName());
+                post.setUserLastName(user.getLastName());
+            }
+        }
+        return posts;
     }
 
     public Post searchPostById(String postId) {

@@ -34,7 +34,7 @@ const PostCard = (
     // content,
     // category,
     // ingredients,
-    // photoUrl,
+    // coverImgUrl,
   }
 ) => {
   const [expanded, setExpanded] = useState(false);

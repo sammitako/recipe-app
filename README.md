@@ -15,7 +15,7 @@ Recipe app is a platform where users can upload their recipes and search for rec
 - Database: MongoDB
 - Environment: Docker
 - Hosting: Local server
-- Software architectural style: REST API
+- Software architectural style: REST APIs
 - Libraries: NextAuth.js, Cloudinary, Material UI
 
 
