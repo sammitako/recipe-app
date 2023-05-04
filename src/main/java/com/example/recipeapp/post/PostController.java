@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
-
+@CrossOrigin(value="http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -15,31 +15,31 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping(value="/posts")
-//    @CrossOrigin
+    @CrossOrigin
     public ResponseEntity<List<Post>> getPosts() {
         return ResponseEntity.ok(postService.getPosts());
     }
 
     @GetMapping("/post/{postId}")
-//    @CrossOrigin
+    @CrossOrigin
     public ResponseEntity<Post> searchPostById(@PathVariable String postId) {
         return ResponseEntity.ok(postService.searchPostById(postId));
     }
 
     @GetMapping("/search")
-//    @CrossOrigin
+    @CrossOrigin
     public ResponseEntity<List<Post>> searchPosts(
             @RequestParam(required = false) String kwd) { // http://localhost:8080/api/v1/search?kwd=searchingText
         return ResponseEntity.ok(postService.searchPosts(kwd));
     }
 
     @PostMapping("/createPost")
-//    @CrossOrigin
+    @CrossOrigin
     public ResponseEntity<Post> createPost(@RequestBody Post post) {
         return ResponseEntity.ok(postService.createPost(post));
     }
     @PutMapping("/updatePost")
-//    @CrossOrigin
+    @CrossOrigin
     public ResponseEntity<Post> updatePost(
             @RequestBody Post post
     ) {
@@ -47,7 +47,7 @@ public class PostController {
     }
 
     @DeleteMapping("/deletePost/{postId}")
-//    @CrossOrigin
+    @CrossOrigin
     public ResponseEntity<Void> deletePost(@PathVariable String postId) {
         postService.deletePostById(postId);
         return ResponseEntity.accepted().build();

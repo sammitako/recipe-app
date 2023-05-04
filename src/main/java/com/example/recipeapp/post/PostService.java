@@ -34,6 +34,11 @@ public class PostService {
                 post.setUserLastName(user.getLastName());
             }
         }
+
+        // Sort the posts by createdAt in descending order
+        posts = posts.stream()
+                .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
+                .collect(Collectors.toList());
         return posts;
     }
 

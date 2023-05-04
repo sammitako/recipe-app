@@ -14,16 +14,10 @@ import { makeStyles } from "@mui/styles";
 import Image from "next/image";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import axios from "axios";
-// import cloudinary from "cloudinary";
 import moment from "moment";
 import { toast } from "react-hot-toast";
-// import { v4 as uuidv4 } from "uuid";
-
-// cloudinary.v2.config({
-//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-//   api_key: process.env.CLOUDINARY_API_KEY,
-//   api_secret: process.env.CLOUDINARY_API_SECRET,
-// });
+import { useAtom } from "jotai";
+import { postListJotai } from "main/libs/jotai";
 
 const useStyles = makeStyles(() => ({
   dropzone: {
@@ -68,22 +62,26 @@ const img = {
   height: "100%",
 };
 
+const initialPostState = {
+  userId: "",
+  userFirstName: "",
+  userLastName: "",
+  title: "",
+  category: "",
+  ingredients: [],
+  content: "",
+  coverImgUrl: "",
+  createdAt: "",
+};
+
 export default function CreateButton() {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [postList, setPostList] = useAtom(postListJotai);
   const [file, setFile] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
-  const [post, setPost] = useState({
-    userId: "",
-    userFirstName: "",
-    userLastName: "",
-    title: "",
-    category: "",
-    ingredients: [],
-    content: "",
-    coverImgUrl: "",
-    createdAt: "",
-  });
+  const [post, setPost] = useState(initialPostState);
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: "image/*",
@@ -120,17 +118,8 @@ export default function CreateButton() {
   };
 
   const handleClose = () => {
-    setPost({
-      userId: "",
-      userFirstName: "",
-      userLastName: "",
-      title: "",
-      category: "",
-      ingredients: [],
-      content: "",
-      coverImgUrl: "",
-      createdAt: "",
-    });
+    setPost(initialPostState);
+    setFile([]); // Reset the file as well
     setOpen(false);
   };
 
@@ -172,6 +161,7 @@ export default function CreateButton() {
   };
 
   const createUser = async (e) => {
+    setIsLoading(true);
     e.preventDefault();
 
     const coverImgUrl = await uploadImageToCloudinary(file);
@@ -194,16 +184,19 @@ export default function CreateButton() {
           },
         }
       );
+      setPostList((prevPosts) => [response.data, ...prevPosts]);
       toast.success("Thanks for sharing!");
       console.log(response.data);
+      handleClose(); // Reset the input fields
     } catch (error) {
       if (error.response) {
+        toast.error("Posting didn't work.");
         console.log(error.response);
         console.log(error.response.status);
         console.log(error.response.headers);
       }
     }
-
+    setIsLoading(false);
     setOpen(false);
   };
 
@@ -267,7 +260,10 @@ export default function CreateButton() {
             name="category"
             value={post.category}
             onChange={(event, newValue) => {
-              setPost((prevState) => ({ ...prevState, category: newValue }));
+              setPost((prevState) => ({
+                ...prevState,
+                category: newValue,
+              }));
             }}
           />
           <Autocomplete
@@ -278,7 +274,10 @@ export default function CreateButton() {
             name="ingredients"
             value={post.ingredients}
             onChange={(event, newValue) => {
-              setPost((prevState) => ({ ...prevState, ingredients: newValue }));
+              setPost((prevState) => ({
+                ...prevState,
+                ingredients: newValue,
+              }));
             }}
             options={ingredientList.map((incredient) => incredient)}
             // defaultValue={[topFilms[13].title]}
@@ -335,8 +334,10 @@ export default function CreateButton() {
           </section>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={createUser}>Post</Button>
+          {!isLoading && <Button onClick={handleClose}>Cancel</Button>}
+          <Button disabled={isLoading} onClick={createUser}>
+            {!isLoading ? "POST" : "POSTING"}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

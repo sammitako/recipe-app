@@ -1,3 +1,4 @@
+// https://food.ndtv.com/ingredient
 export const ingredientList = [
   "Bok Choy",
   "Snake Beans",

@@ -4,19 +4,26 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { styled } from "@mui/system";
 import { Blocks } from "react-loader-spinner";
+import ExpandablePostCard from "./ExpandablePostCard";
+import { useAtom } from "jotai";
+import { isLoadingImageJotai, postListJotai } from "main/libs/jotai";
 
 const StyledGridItem = styled(Grid)(({ theme }) => ({
   display: "flex",
 }));
 
 const PostList = () => {
-  // Assuming posts is an array of your 20 PostCard data
-  const dummy = Array(20).fill({});
-  const [posts, setPosts] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useAtom(postListJotai);
+  const [isLoading, setIsLoading] = useState(true);
+  const [expandedPost, setExpandedPost] = useState(null);
+
+  const handleExpandClick = (id) => {
+    setExpandedPost(expandedPost === id ? null : id);
+  };
 
   const fetchPostList = async () => {
-    setLoading(true);
+    setIsLoading(true);
+
     try {
       const response = await axios.get(
         process.env.NEXT_PUBLIC_BASE_API_URL + "/posts"
@@ -26,7 +33,7 @@ const PostList = () => {
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -36,16 +43,21 @@ const PostList = () => {
 
   return (
     <Box sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
-      {!loading ? (
+      {!isLoading ? (
         <Grid
           container
           rowSpacing={3}
           columnSpacing={{ xs: 2, sm: 3 }}
-          justifyContent="center"
+          justifyContent="flex-start"
         >
           {posts?.map((post, index) => (
             <StyledGridItem item key={post.id}>
-              <PostCard post={post} style={{ height: "100%" }} />
+              <ExpandablePostCard
+                post={post}
+                style={{ height: "100%" }}
+                expandedPost={expandedPost}
+                handleExpandClick={handleExpandClick}
+              />
             </StyledGridItem>
           ))}
         </Grid>
