@@ -4,20 +4,15 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { styled } from "@mui/system";
 import { Blocks } from "react-loader-spinner";
-import ExpandablePostCard from "./ExpandablePostCard";
 import { useAtom } from "jotai";
-import { isLoadingImageJotai, postListJotai } from "main/libs/jotai";
-
-const StyledGridItem = styled(Grid)(({ theme }) => ({
-  display: "flex",
-}));
+import { postListJotai } from "main/libs/jotai";
 
 const PostList = () => {
   const [posts, setPosts] = useAtom(postListJotai);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedPost, setExpandedPost] = useState(null);
 
-  const handleExpandClick = (id) => {
+  const handleExpandClick = (id, event) => {
     setExpandedPost(expandedPost === id ? null : id);
   };
 
@@ -48,18 +43,21 @@ const PostList = () => {
           container
           rowSpacing={3}
           columnSpacing={{ xs: 2, sm: 3 }}
-          justifyContent="flex-start"
+          justifyContent="center"
+          item
         >
-          {posts?.map((post, index) => (
-            <StyledGridItem item key={post.id}>
-              <ExpandablePostCard
-                post={post}
-                style={{ height: "100%" }}
-                expandedPost={expandedPost}
-                handleExpandClick={handleExpandClick}
-              />
-            </StyledGridItem>
-          ))}
+          {posts?.map((post, index) => {
+            console.log(post.id);
+            return (
+              <Grid item key={post.id}>
+                <PostCard
+                  post={post}
+                  expanded={expandedPost === post.id}
+                  handleExpandClick={() => handleExpandClick(post.id)}
+                />
+              </Grid>
+            );
+          })}
         </Grid>
       ) : (
         <Blocks
