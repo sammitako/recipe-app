@@ -17,6 +17,7 @@ Recipe app is a platform where users can upload their recipes and search for rec
 - Hosting: Local server
 - Software architectural style: REST APIs
 - Libraries: NextAuth.js, Cloudinary, Material UI
+- Project management tool: Maven
 
 
 ## Getting Started
