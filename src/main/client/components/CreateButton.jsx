@@ -246,7 +246,6 @@ export default function CreateButton() {
           </DialogContentText>
           <TextField
             sx={{ mb: 2 }}
-            required
             autoFocus
             margin="dense"
             id="title"
@@ -260,7 +259,6 @@ export default function CreateButton() {
 
           <Autocomplete
             sx={{ mb: 2 }}
-            required
             disablePortal
             fullWidth
             id="combo-box-demo"
@@ -277,7 +275,6 @@ export default function CreateButton() {
           />
           <Autocomplete
             sx={{ mb: 2.5 }}
-            required
             multiple
             id="tags-filled"
             name="ingredients"
@@ -310,7 +307,6 @@ export default function CreateButton() {
             )}
           />
           <TextField
-            required
             fullWidth
             id="outlined-multiline-flexible"
             label="Recipe"

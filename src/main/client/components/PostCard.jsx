@@ -114,18 +114,20 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
             opacity: isLoadingImage ? 0 : 1,
           }}
         />
-        <Image
-          width={400}
-          height={200}
-          src={coverImgUrl}
-          alt="Cover Image"
-          style={{ opacity: 0, position: "absolute", top: 0, left: 0 }}
-          onLoad={handleImageLoad}
-        />
+        {coverImgUrl && (
+          <Image
+            width={400}
+            height={200}
+            src={coverImgUrl}
+            alt="Cover Image"
+            style={{ opacity: 0, position: "absolute", top: 0, left: 0 }}
+            onLoad={handleImageLoad}
+          />
+        )}
         <CardContent style={{ minHeight: "100px" }}>
           <Typography variant="body1">{title}</Typography>
           <Typography variant="body2" color="text.secondary">
-            {ingredients.join(", ")}
+            {ingredients?.join(", ")}
           </Typography>
         </CardContent>
         <CardActions disableSpacing={true}>

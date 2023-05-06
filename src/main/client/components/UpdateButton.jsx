@@ -5,7 +5,6 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 import { Autocomplete, Box, Chip } from "@mui/material";
 import { ingredientList } from "../libs/ingredients";
@@ -18,7 +17,6 @@ import moment from "moment";
 import { toast } from "react-hot-toast";
 import { useAtom } from "jotai";
 import { currentUserJotai, postListJotai } from "main/libs/jotai";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
 const useStyles = makeStyles(() => ({
@@ -78,8 +76,9 @@ export default function UpdateButton({
   const [categoryList, setCategoryList] = useState([]);
   const [currentUser, setCurrentUser] = useAtom(currentUserJotai);
   const [currentPost, setCurrentPost] = useState({});
-  const [updatedPost, setUpdatedPost] = useState({});
+  const [updatedPost, setUpdatedPost] = useState(null);
   const [isPostClicked, setIsPostClicked] = useState(false); // to prevent user click outside of Dialog
+  const [categoryInputValue, setCategoryInputValue] = useState("");
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: "image/*",
@@ -106,6 +105,18 @@ export default function UpdateButton({
           onLoad={() => {
             URL.revokeObjectURL(file.preview);
           }}
+        />
+      </div>
+    </div>
+  ) : currentPost?.coverImgUrl ? (
+    <div style={thumb}>
+      <div style={thumbInner}>
+        <Image
+          alt="cover"
+          src={currentPost.coverImgUrl}
+          style={img}
+          width={500}
+          height={500}
         />
       </div>
     </div>
@@ -178,13 +189,24 @@ export default function UpdateButton({
     setIsLoading(true);
     setIsPostClicked(true);
 
-    const coverImgUrl = await uploadImageToCloudinary(file);
-    const updatedPostData = {
-      ...updatedPost,
-      userId: currentUser.userId,
-      userFirstName: currentUser.firstName,
-      userLastName: currentUser.lastName,
+    const coverImgUrl =
+      file && file?.preview !== currentPost?.coverImgUrl
+        ? await uploadImageToCloudinary(file)
+        : currentPost?.coverImgUrl;
+    // update the updatedPost state with the current coverImgUrl
+    setUpdatedPost((prevState) => ({
+      ...prevState,
       coverImgUrl,
+    }));
+    const updatedPostData = {
+      title: updatedPost?.title || currentPost?.title,
+      category: updatedPost?.category || currentPost?.category,
+      ingredients: updatedPost?.ingredients || currentPost?.ingredients,
+      content: updatedPost?.content || currentPost?.content,
+      userId: currentUser?.userId,
+      userFirstName: currentUser?.firstName,
+      userLastName: currentUser?.lastName,
+      coverImgUrl, // correctly populated
       createdAt: moment().toISOString(),
     };
 
@@ -230,8 +252,26 @@ export default function UpdateButton({
   }, [updateModalOpen]);
 
   useEffect(() => {
+    if (currentPost?.coverImgUrl) {
+      const image = new window.Image();
+      image.src = currentPost.coverImgUrl;
+      image.onload = () => {
+        const file = {
+          preview: currentPost.coverImgUrl,
+          name: "current_post_image.jpg",
+          type: "image/jpeg",
+          size: image.width * image.height * 4, // approximate size
+        };
+        setFile(file);
+      };
+    } else {
+      setFile(null);
+    }
+  }, [currentPost]);
+
+  useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
-    return () => URL.revokeObjectURL(file.preview);
+    return () => URL.revokeObjectURL(file?.preview);
   }, [file]);
   return (
     <Box
@@ -250,9 +290,9 @@ export default function UpdateButton({
             To share your recipe, you will need a cover photo. Please enter all
             the ingredients that would be used to make your dish.
           </DialogContentText>
+          {/* ?? operator: use the currentPost data as a fallback. */}
           <TextField
             sx={{ mb: 2 }}
-            required
             autoFocus
             margin="dense"
             id="title"
@@ -260,22 +300,28 @@ export default function UpdateButton({
             fullWidth
             variant="outlined"
             name="title"
-            value={updatedPost?.title}
-            defaultValue={currentPost?.title}
+            value={updatedPost?.title ?? currentPost?.title}
             onChange={(e) => handleChange(e)}
+            InputLabelProps={{ shrink: true }}
           />
 
           <Autocomplete
             sx={{ mb: 2 }}
-            required
             disablePortal
             fullWidth
             id="combo-box-demo"
-            options={categoryList.map((category) => category)}
-            renderInput={(params) => <TextField {...params} label="Category" />}
+            options={categoryList}
+            // getOptionLabel={(option) => option}
+            // getoptionselected={(option, value) => option === value}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Category"
+                InputLabelProps={{ shrink: true }}
+              />
+            )}
             name="category"
-            value={updatedPost?.category}
-            defaultValue={currentPost?.category}
+            value={updatedPost?.category || currentPost?.category || ""}
             onChange={(event, newValue) => {
               setUpdatedPost((prevState) => ({
                 ...prevState,
@@ -285,19 +331,23 @@ export default function UpdateButton({
           />
           <Autocomplete
             sx={{ mb: 2.5 }}
-            required
             multiple
             id="tags-filled"
             name="ingredients"
-            value={updatedPost?.ingredients}
+            value={
+              Array.isArray(updatedPost?.ingredients)
+                ? updatedPost.ingredients
+                : Array.isArray(currentPost?.ingredients)
+                ? currentPost.ingredients
+                : []
+            }
             onChange={(event, newValue) => {
               setUpdatedPost((prevState) => ({
                 ...prevState,
                 ingredients: newValue,
               }));
             }}
-            options={ingredientList.map((incredient) => incredient)}
-            defaultValue={currentPost?.ingredients}
+            options={ingredientList.map((ingredient) => ingredient)}
             freeSolo
             renderTags={(value, getTagProps) =>
               value.map((option, index) => (
@@ -314,11 +364,11 @@ export default function UpdateButton({
                 {...params}
                 label="Ingredients"
                 placeholder="Ingredient"
+                InputLabelProps={{ shrink: true }}
               />
             )}
           />
           <TextField
-            required
             fullWidth
             id="outlined-multiline-flexible"
             label="Recipe"
@@ -326,28 +376,23 @@ export default function UpdateButton({
             multiline
             rows={10}
             name="content"
-            value={updatedPost?.content}
-            defaultValue={currentPost?.content}
+            value={updatedPost?.content ?? currentPost?.content}
             onChange={(e) => handleChange(e)}
+            InputLabelProps={{ shrink: true }}
           />
           <section className="container">
             <div
               style={{ cursor: "pointer" }}
               {...getRootProps({ className: classes.dropzone })}
             >
-              <input
-                name="coverImgUrl"
-                value={updatedPost?.coverImgUrl}
-                onChange={(e) => handleChange(e)}
-                {...getInputProps()}
-              />
+              <input name="coverImgUrl" {...getInputProps()} />
               <p>
                 Drag and drop a cover image file here, or click to select file
               </p>
               <CloudUploadIcon sx={{ fontSize: 40 }} />
             </div>
             <aside style={{ ...thumbsContainer, justifyContent: "center" }}>
-              {file.preview ? thumbs : null}
+              {file?.preview ? thumbs : null}
             </aside>
           </section>
         </DialogContent>

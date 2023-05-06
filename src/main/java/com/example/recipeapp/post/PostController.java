@@ -65,9 +65,13 @@ public class PostController {
 
     @DeleteMapping("/deletePost/{postId}")
     @CrossOrigin
-    public ResponseEntity<Void> deletePost(@PathVariable String postId) {
-        postService.deletePostById(postId);
-        return ResponseEntity.accepted().build();
+    public ResponseEntity<String> deletePost(@PathVariable String postId) {
+        boolean isDeleted = postService.deletePostById(postId);
+        if (isDeleted) {
+            return ResponseEntity.accepted().body("Post deleted successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found with id " + postId);
+        }
     }
 
 }

@@ -122,12 +122,13 @@ public class PostService {
         }
     }
 
-    public void deletePostById(String postId) {
+    public boolean deletePostById(String postId) {
         // Check if the post exists before trying to delete it
         if (postRepository.existsById(postId)) {
             postRepository.deleteById(postId);
+            return true;
         } else {
-            throw new ResourceNotFoundException("Post not found with id " + postId);
+            return false;
         }
     }
 
