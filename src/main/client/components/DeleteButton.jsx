@@ -53,20 +53,17 @@ const DeleteButton = ({
           process.env.NEXT_PUBLIC_BASE_API_URL + `/deletePost/${postId}`
         );
 
-        if (response.status === 200) {
-          toast.success("Post deleted successfully");
+        if (response.status === 202) {
           removePostById(postId); // Update post list after successful deletion
-          resolve();
+          resolve(response.data);
+        } else if (response.status === 404) {
+          reject(new Error(response.data));
         } else {
-          // Handle error while deleting the post
-          toast.error("Error while deleting the post");
-          console.error("Error while deleting the post");
-          reject();
+          // Handle other error cases
+          reject(new Error("Error while deleting the post"));
         }
       } catch (error) {
-        toast.error("Network error while deleting the post");
-        console.error("Network error while deleting the post");
-        reject();
+        reject(error);
       } finally {
         setIsDeleting(false);
         setIsPostClicked(false);
