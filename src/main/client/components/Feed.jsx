@@ -12,7 +12,7 @@ const Feed = () => {
   const [userCreationAttempted, setUserCreationAttempted] = useState(false);
 
   const checkUserAndCreate = async () => {
-    const { email, name } = session?.user;
+    const { email, name, image } = session?.user;
     const firstName = name?.split(" ")[0];
     const lastName = name?.split(" ")[1];
     try {
@@ -34,6 +34,7 @@ const Feed = () => {
               email: email,
               firstName: firstName,
               lastName: lastName,
+              profileImgUrl: image, // Pass the user image URL when creating a new user
             }
           );
 

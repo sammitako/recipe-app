@@ -84,6 +84,9 @@ export default function CreateButton() {
   const [file, setFile] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
   const [post, setPost] = useState(initialPostState);
+  const [userId, setUserId] = useState(null);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: "image/*",
@@ -140,6 +143,25 @@ export default function CreateButton() {
     }
   };
 
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_BASE_API_URL +
+          `/userByEmail/${session.user.email}`
+      );
+      if (response.status === 200) {
+        const user = response.data;
+        setUserId(user.id);
+        setFirstName(user.firstName);
+        setLastName(user.lastName);
+      } else {
+        console.log("Error finding user");
+      }
+    } catch (error) {
+      console.log("Error finding user:", error);
+    }
+  };
+
   const uploadImageToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -162,21 +184,26 @@ export default function CreateButton() {
     }
   };
 
-  const createUser = async (e) => {
+  const createPost = async (e) => {
     setIsLoading(true);
     e.preventDefault();
 
     const coverImgUrl = await uploadImageToCloudinary(file);
     const updatedPost = {
       ...post,
-      userId: "3",
-      userFirstName: session?.user?.name.split(" ", [0]),
-      userLastName: session?.user?.name.split(" ", [1]),
+      userId,
+      userFirstName: firstName,
+      userLastName: lastName,
       coverImgUrl,
       createdAt: moment().toISOString(),
     };
 
     try {
+      toast.promise(saveSettings(isLoading), {
+        loading: "Saving...",
+        success: <b>Recipe shared successfully!</b>,
+        error: <b>Failed to post.</b>,
+      });
       const response = await axios.post(
         process.env.NEXT_PUBLIC_BASE_API_URL + "/createPost",
         updatedPost,
@@ -187,7 +214,7 @@ export default function CreateButton() {
         }
       );
       setPostList((prevPosts) => [response.data, ...prevPosts]);
-      toast.success("Thanks for sharing!");
+      // toast.success("Thanks for sharing!");
       handleClose(); // Reset the input fields
     } catch (error) {
       if (error.response) {
@@ -209,7 +236,11 @@ export default function CreateButton() {
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
     return () => URL.revokeObjectURL(file.preview);
   }, [file]);
-
+  useEffect(() => {
+    if (session) {
+      fetchUserData();
+    }
+  }, [session]);
   return (
     <Box
       sx={{
@@ -336,7 +367,7 @@ export default function CreateButton() {
         </DialogContent>
         <DialogActions>
           {!isLoading && <Button onClick={handleClose}>Cancel</Button>}
-          <Button disabled={isLoading} onClick={createUser}>
+          <Button disabled={isLoading} onClick={createPost}>
             {!isLoading ? "POST" : "POSTING"}
           </Button>
         </DialogActions>

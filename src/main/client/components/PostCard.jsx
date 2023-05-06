@@ -33,6 +33,7 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
     id,
     userFirstName,
     userLastName,
+    profileImgUrl,
     createdAt,
     title,
     content,
@@ -42,6 +43,7 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
   } = post;
   const userFullName = userFirstName?.concat(" ", userLastName);
   const [isLoadingImage, setIsLoadingImage] = useState(true);
+  console.log(profileImgUrl);
 
   const handleImageLoad = () => {
     setIsLoadingImage(false);
@@ -53,9 +55,24 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
         <CardHeader
           sx={{ zIndex: 10 }}
           avatar={
-            <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-              {userFirstName && userFirstName[0]}
-            </Avatar>
+            profileImgUrl ? (
+              <Avatar
+                src={profileImgUrl}
+                alt={`${userFirstName} ${userLastName}`}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "";
+                  e.target.style.backgroundColor = red[500];
+                }}
+                aria-label="recipe"
+              >
+                {userFirstName && userFirstName[0]}
+              </Avatar>
+            ) : (
+              <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+                {userFirstName && userFirstName[0]}
+              </Avatar>
+            )
           }
           action={<SettingButton postId={id} />}
           title={userFullName}

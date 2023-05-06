@@ -9,6 +9,8 @@ import { signOut, useSession } from "next-auth/react";
 import Login from "./Login";
 import Image from "next/image";
 import Loader from "./Loader";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const navItems = [
   { name: "My Profile", link: "/profile" },
@@ -18,6 +20,34 @@ const navItems = [
 
 function Navbar() {
   const { data: session, status } = useSession();
+  const [userId, setUserId] = useState(null);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_BASE_API_URL +
+          `/userByEmail/${session.user.email}`
+      );
+      if (response.status === 200) {
+        const user = response.data;
+        setUserId(user.id);
+        setFirstName(user.firstName);
+        setLastName(user.lastName);
+      } else {
+        console.log("Error finding user");
+      }
+    } catch (error) {
+      console.log("Error finding user:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (session && session.user) {
+      fetchUserData();
+    }
+  }, [session]);
 
   return status === "loading" ? (
     <Loader />
@@ -57,7 +87,7 @@ function Navbar() {
               }}
               passHref
             >
-              {session?.user?.name}
+              {firstName} {lastName}
             </Link>
           </Typography>
 
