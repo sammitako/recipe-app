@@ -1,8 +1,10 @@
+import axios from "axios";
 import NextAuth from "next-auth/next";
 import FacebookProvider from "next-auth/providers/facebook";
 import GoogleProvider from "next-auth/providers/google";
+
 export const authOptions = {
-  // Configure one or more authentication providers
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -13,43 +15,6 @@ export const authOptions = {
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
     }),
   ],
-  callbacks: {
-    async signIn(user, account, profile) {
-      const { email, name, image } = user;
-      const firstName = name.split(" ")[0];
-      const lastName = name.split(" ")[1];
-
-      try {
-        const existingUser = await axios.get(
-          `http://localhost:8080/api/v1/userByEmail/${email}`
-        );
-
-        if (existingUser.data) {
-          console.log("User already exists");
-          return true;
-        } else {
-          const response = await axios.post(
-            "http://localhost:8080/api/v1/createUser",
-            {
-              email: email,
-              firstName: firstName,
-              lastName: lastName,
-            }
-          );
-
-          if (response.status === 200) {
-            console.log("User created successfully");
-            return true;
-          } else {
-            console.log("Error creating user");
-            return false;
-          }
-        }
-      } catch (error) {
-        console.log("Error creating or finding user:", error);
-        return false;
-      }
-    },
-  },
 };
+
 export default NextAuth(authOptions);

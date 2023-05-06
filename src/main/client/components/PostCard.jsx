@@ -40,7 +40,7 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
     ingredients,
     coverImgUrl,
   } = post;
-  const userFullName = userFirstName.concat(" ", userLastName);
+  const userFullName = userFirstName?.concat(" ", userLastName);
   const [isLoadingImage, setIsLoadingImage] = useState(true);
 
   const handleImageLoad = () => {
@@ -54,7 +54,7 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
           sx={{ zIndex: 10 }}
           avatar={
             <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-              {userFirstName[0]}
+              {userFirstName && userFirstName[0]}
             </Avatar>
           }
           action={<SettingButton postId={id} />}

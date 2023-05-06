@@ -18,6 +18,7 @@ import moment from "moment";
 import { toast } from "react-hot-toast";
 import { useAtom } from "jotai";
 import { postListJotai } from "main/libs/jotai";
+import { useSession } from "next-auth/react";
 
 const useStyles = makeStyles(() => ({
   dropzone: {
@@ -75,6 +76,7 @@ const initialPostState = {
 };
 
 export default function CreateButton() {
+  const { data: session, status } = useSession();
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -168,8 +170,8 @@ export default function CreateButton() {
     const updatedPost = {
       ...post,
       userId: "3",
-      userFirstName: "Hansaem",
-      userLastName: "Park",
+      userFirstName: session?.user?.name.split(" ", [0]),
+      userLastName: session?.user?.name.split(" ", [1]),
       coverImgUrl,
       createdAt: moment().toISOString(),
     };
@@ -186,7 +188,6 @@ export default function CreateButton() {
       );
       setPostList((prevPosts) => [response.data, ...prevPosts]);
       toast.success("Thanks for sharing!");
-      console.log(response.data);
       handleClose(); // Reset the input fields
     } catch (error) {
       if (error.response) {

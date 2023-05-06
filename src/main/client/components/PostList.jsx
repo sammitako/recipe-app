@@ -24,7 +24,6 @@ const PostList = () => {
         process.env.NEXT_PUBLIC_BASE_API_URL + "/posts"
       );
       setPosts(response.data);
-      console.log(response.data);
     } catch (error) {
       console.log(error);
     } finally {
@@ -47,7 +46,6 @@ const PostList = () => {
           item
         >
           {posts?.map((post, index) => {
-            console.log(post.id);
             return (
               <Grid item key={post.id}>
                 <PostCard
