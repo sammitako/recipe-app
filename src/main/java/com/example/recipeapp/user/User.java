@@ -27,5 +27,5 @@ public class User {
     @Nonnull
     private String lastName;
     @Indexed(unique = true)
-    private String emailId;
+    private String email;
 }
