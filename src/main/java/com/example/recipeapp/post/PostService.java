@@ -94,7 +94,7 @@ public class PostService {
     }
 
     public Post updatePost(Post post) {
-        System.out.println(post);  // print out the Post object
+        System.out.println(post);
         // Check if the post exists before trying to update it
         if (postRepository.existsById(post.getId())) {
             return postRepository.save(post);

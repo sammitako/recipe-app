@@ -7,7 +7,7 @@ Recipe app is a platform where users can upload their recipes and search for rec
 - Update my account
   - Firstname, Lastname only
 - Create my recipes
-  - Title, Category, Ingredients, Recipe method, Cover image needed
+  - Title, Category, Ingredients, Recipe method, Cover image needed (form validation)
 - Update my recipes (restricted to my post only)
 - Delete my recipes (restricted to my post only)
 - View only my recipes or everything

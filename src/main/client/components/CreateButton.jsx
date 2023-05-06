@@ -173,41 +173,47 @@ export default function CreateButton() {
     setIsLoading(true);
     setIsPostClicked(true);
 
-    const coverImgUrl = await uploadImageToCloudinary(file);
-    const updatedPost = {
-      ...post,
-      userId: currentUser.userId,
-      userFirstName: currentUser.firstName,
-      userLastName: currentUser.lastName,
-      coverImgUrl,
-      createdAt: moment().toISOString(),
-    };
+    try {
+      const coverImgUrl = await uploadImageToCloudinary(file);
+      const updatedPost = {
+        ...post,
+        userId: currentUser.userId,
+        userFirstName: currentUser.firstName,
+        userLastName: currentUser.lastName,
+        coverImgUrl,
+        createdAt: moment().toISOString(),
+      };
 
-    toast.promise(
-      axios.post(
-        process.env.NEXT_PUBLIC_BASE_API_URL + "/createPost",
-        updatedPost,
+      toast.promise(
+        axios.post(
+          process.env.NEXT_PUBLIC_BASE_API_URL + "/createPost",
+          updatedPost,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        ),
         {
-          headers: {
-            "Content-Type": "application/json",
+          loading: "Posting...",
+          success: (response) => {
+            setPostList((prevPosts) => [response.data, ...prevPosts]);
+            handleClose(); // Reset the input fields
+            return "Successfully posted!";
+          },
+          error: (err) => {
+            console.error(err);
+            return "Posting didn't work.";
           },
         }
-      ),
-      {
-        loading: "Posting...",
-        success: (response) => {
-          setPostList((prevPosts) => [response.data, ...prevPosts]);
-          handleClose(); // Reset the input fields
-          return "Successfully posted!";
-        },
-        error: (err) => {
-          console.error(err);
-          return "Posting didn't work.";
-        },
-      }
-    );
-    setIsLoading(false);
-    setIsPostClicked(false);
+      );
+    } catch (error) {
+      console.error(error);
+      toast.error("Error uploading image");
+    } finally {
+      setIsLoading(false);
+      setIsPostClicked(false);
+    }
   };
 
   useEffect(() => {
