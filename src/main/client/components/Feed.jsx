@@ -25,6 +25,20 @@ const Feed = () => {
 
         if (existingUser.status === 200 || existingUser.status === 201) {
           console.log("User already exists");
+
+          // Update the user's profileImgUrl if it has changed
+          if (existingUser.data.profileImgUrl !== image) {
+            try {
+              await axios.patch(
+                process.env.NEXT_PUBLIC_BASE_API_URL +
+                  `/user/${existingUser.data.id}`,
+                { profileImgUrl: image }
+              );
+              console.log("User profileImgUrl updated successfully");
+            } catch (updateError) {
+              console.log("Error updating user profileImgUrl:", updateError);
+            }
+          }
         } else {
           console.log("Error finding user");
         }

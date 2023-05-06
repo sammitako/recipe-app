@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @CrossOrigin(value="http://localhost:3000")
@@ -55,6 +56,26 @@ public class UserController {
             @RequestBody User user
     ) {
         return ResponseEntity.ok(userService.updateUser(user));
+    }
+
+    @PatchMapping("/user/{userId}")
+    @CrossOrigin
+    public ResponseEntity<?> updateUserProfileImgUrl(@PathVariable String id, @RequestBody Map<String, Object> updates) {
+        try {
+            Optional<User> optionalUser = userRepository.findById(id);
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+                if (updates.containsKey("profileImgUrl")) {
+                    user.setProfileImgUrl((String) updates.get("profileImgUrl"));
+                }
+                userRepository.save(user);
+                return new ResponseEntity<>(user, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("An error occurred while updating the user", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping("/deleteUser/{userId}")

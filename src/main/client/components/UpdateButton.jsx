@@ -13,6 +13,7 @@ import { useDropzone } from "react-dropzone";
 import { makeStyles } from "@mui/styles";
 import Image from "next/image";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { useRouter } from "next/router";
 
 const useStyles = makeStyles(() => ({
   dropzone: {
@@ -62,6 +63,7 @@ export default function UpdateButton({
   setUpdateModalOpen,
   postId,
 }) {
+  const router = useRouter();
   const classes = useStyles();
   const [file, setFile] = useState([]);
   const [post, setPost] = useState({
@@ -107,7 +109,22 @@ export default function UpdateButton({
     </div>
   ) : null;
 
-  useEffect(() => {}, []);
+  const fetchPostById = async () => {
+    try {
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_BASE_API_URL + "/post/" + postId
+      );
+      setPost(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (updateModalOpen) {
+      fetchPostById();
+    }
+  }, [updateModalOpen]);
 
   useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
@@ -137,7 +154,7 @@ export default function UpdateButton({
             label="Title"
             fullWidth
             variant="outlined"
-            defaultValue="Hello World!"
+            defaultValue={post.title}
             required
             InputLabelProps={{
               shrink: true,
@@ -150,7 +167,7 @@ export default function UpdateButton({
             fullWidth
             id="combo-box-demo"
             options={topFilms.map((option) => option.title)}
-            defaultValue={topFilms[5].title}
+            defaultValue={post.category}
             renderInput={(params) => <TextField {...params} label="Category" />}
           />
           <Autocomplete
@@ -158,7 +175,7 @@ export default function UpdateButton({
             multiple
             id="tags-filled"
             options={topFilms.map((option) => option.title)}
-            defaultValue={[topFilms[12].title, topFilms[13].title]}
+            defaultValue={post.ingredients}
             freeSolo
             renderTags={(value, getTagProps) =>
               value.map((option, index) => (
@@ -186,7 +203,7 @@ export default function UpdateButton({
             fullWidth
             id="outlined-multiline-flexible"
             label="Recipe"
-            defaultValue="Share your method"
+            defaultValue={post.content}
             multiline
             rows={10}
           />
