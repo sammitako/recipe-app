@@ -20,24 +20,33 @@ export const authOptions = {
       const lastName = name.split(" ")[1];
 
       try {
-        const response = await axios.post(
-          "http://localhost:8080/api/v1/createUser",
-          {
-            email: email,
-            firstName: firstName,
-            lastName: lastName,
-          }
+        const existingUser = await axios.get(
+          `http://localhost:8080/api/v1/userByEmail/${email}`
         );
 
-        if (response.status === 200) {
-          console.log("User created successfully");
+        if (existingUser.data) {
+          console.log("User already exists");
           return true;
         } else {
-          console.log("Error creating user");
-          return false;
+          const response = await axios.post(
+            "http://localhost:8080/api/v1/createUser",
+            {
+              email: email,
+              firstName: firstName,
+              lastName: lastName,
+            }
+          );
+
+          if (response.status === 200) {
+            console.log("User created successfully");
+            return true;
+          } else {
+            console.log("Error creating user");
+            return false;
+          }
         }
       } catch (error) {
-        console.log("Error creating user:", error);
+        console.log("Error creating or finding user:", error);
         return false;
       }
     },

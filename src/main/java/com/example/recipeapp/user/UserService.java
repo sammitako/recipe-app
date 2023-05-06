@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -16,6 +18,9 @@ public class UserService {
     }
     public User getUserById(String id) {
         return userRepository.findById(id).orElse(null);
+    }
+    public Optional<User> findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
     public User createUser(User user) {
         return userRepository.save(user);

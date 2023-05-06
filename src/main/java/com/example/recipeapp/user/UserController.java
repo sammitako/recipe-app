@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(value="http://localhost:3000")
 @RestController
@@ -18,10 +19,16 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsers());
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/userById/{userId}")
     @CrossOrigin
     public ResponseEntity<User> getUserById(@PathVariable String userId) {
         return ResponseEntity.ok(userService.getUserById(userId));
+    }
+
+    @GetMapping("/userByEmail/{email}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+        Optional<User> user = userService.findUserByEmail(email);
+        return user.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
     @PostMapping("/createUser")
     @CrossOrigin
