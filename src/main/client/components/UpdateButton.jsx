@@ -64,18 +64,6 @@ const img = {
   height: "100%",
 };
 
-const initialPostState = {
-  userId: "",
-  userFirstName: "",
-  userLastName: "",
-  title: "",
-  category: "",
-  ingredients: [],
-  content: "",
-  coverImgUrl: "",
-  createdAt: "",
-};
-
 export default function UpdateButton({
   updateModalOpen,
   setUpdateModalOpen,
@@ -83,13 +71,14 @@ export default function UpdateButton({
 }) {
   const router = useRouter();
   const classes = useStyles();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(updateModalOpen);
   const [isLoading, setIsLoading] = useState(false);
   const [postList, setPostList] = useAtom(postListJotai);
   const [file, setFile] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
-  const [updatedPost, setUpdatedPost] = useState(initialPostState);
   const [currentUser, setCurrentUser] = useAtom(currentUserJotai);
+  const [currentPost, setCurrentPost] = useState({});
+  const [updatedPost, setUpdatedPost] = useState({});
   const [isPostClicked, setIsPostClicked] = useState(false); // to prevent user click outside of Dialog
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -127,9 +116,8 @@ export default function UpdateButton({
   };
 
   const handleClose = () => {
-    setPost(initialPostState);
     setFile([]); // Reset the file as well
-    setOpen(false);
+    setUpdateModalOpen(false); // Change this line
   };
   const handleDialogClose = (event, reason) => {
     if (reason === "backdropClick" && (isLoading || isPostClicked)) {
@@ -138,7 +126,7 @@ export default function UpdateButton({
     handleClose();
   };
   const handleChange = (event) => {
-    setPost({ ...post, [event.target.name]: event.target.value });
+    setUpdatedPost({ ...updatedPost, [event.target.name]: event.target.value });
   };
 
   const fetchCategoryList = async () => {
@@ -157,7 +145,7 @@ export default function UpdateButton({
       const response = await axios.get(
         process.env.NEXT_PUBLIC_BASE_API_URL + "/post/" + postId
       );
-      setPost(response.data);
+      setCurrentPost(response.data);
     } catch (error) {
       console.log(error);
     }
@@ -185,14 +173,14 @@ export default function UpdateButton({
     }
   };
 
-  const createPost = async (e) => {
+  const updatePost = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setIsPostClicked(true);
 
     const coverImgUrl = await uploadImageToCloudinary(file);
-    const updatedPost = {
-      ...post,
+    const updatedPostData = {
+      ...updatedPost,
       userId: currentUser.userId,
       userFirstName: currentUser.firstName,
       userLastName: currentUser.lastName,
@@ -201,9 +189,9 @@ export default function UpdateButton({
     };
 
     toast.promise(
-      axios.post(
-        process.env.NEXT_PUBLIC_BASE_API_URL + "/createPost",
-        updatedPost,
+      axios.put(
+        process.env.NEXT_PUBLIC_BASE_API_URL + "/updatePost/" + postId,
+        updatedPostData,
         {
           headers: {
             "Content-Type": "application/json",
@@ -211,15 +199,19 @@ export default function UpdateButton({
         }
       ),
       {
-        loading: "Posting...",
+        loading: "Updating...",
         success: (response) => {
-          setPostList((prevPosts) => [response.data, ...prevPosts]);
-          handleClose(); // Reset the input fields
-          return "Successfully posted!";
+          setPostList((prevPosts) => {
+            return prevPosts.map((post) =>
+              post.id === response.data.id ? response.data : post
+            );
+          });
+          handleClose();
+          return "Successfully updated!";
         },
         error: (err) => {
           console.error(err);
-          return "Posting didn't work.";
+          return "Updating didn't work.";
         },
       }
     );
@@ -251,15 +243,6 @@ export default function UpdateButton({
         mb: 5,
       }}
     >
-      <Button
-        variant="text"
-        startIcon={<AddIcon />}
-        onClick={handleClickOpen}
-        sx={{ height: 50 }}
-        fullWidth
-      >
-        Share your recipe
-      </Button>
       <Dialog open={open} onClose={handleDialogClose}>
         <DialogTitle>Share my recipe</DialogTitle>
         <DialogContent>
@@ -277,7 +260,8 @@ export default function UpdateButton({
             fullWidth
             variant="outlined"
             name="title"
-            defaultValue={updatedPost.title}
+            value={updatedPost?.title}
+            defaultValue={currentPost?.title}
             onChange={(e) => handleChange(e)}
           />
 
@@ -291,9 +275,9 @@ export default function UpdateButton({
             renderInput={(params) => <TextField {...params} label="Category" />}
             name="category"
             value={updatedPost?.category}
-            defaultValue={post?.category}
+            defaultValue={currentPost?.category}
             onChange={(event, newValue) => {
-              setPost((prevState) => ({
+              setUpdatedPost((prevState) => ({
                 ...prevState,
                 category: newValue,
               }));
@@ -306,15 +290,14 @@ export default function UpdateButton({
             id="tags-filled"
             name="ingredients"
             value={updatedPost?.ingredients}
-            defaultValue={post?.ingredients}
             onChange={(event, newValue) => {
-              setPost((prevState) => ({
+              setUpdatedPost((prevState) => ({
                 ...prevState,
                 ingredients: newValue,
               }));
             }}
             options={ingredientList.map((incredient) => incredient)}
-            // defaultValue={[topFilms[13].title]}
+            defaultValue={currentPost?.ingredients}
             freeSolo
             renderTags={(value, getTagProps) =>
               value.map((option, index) => (
@@ -344,7 +327,7 @@ export default function UpdateButton({
             rows={10}
             name="content"
             value={updatedPost?.content}
-            defaultValue={post?.content}
+            defaultValue={currentPost?.content}
             onChange={(e) => handleChange(e)}
           />
           <section className="container">
@@ -374,8 +357,8 @@ export default function UpdateButton({
               Cancel
             </Button>
           )}
-          <Button disabled={isLoading} onClick={createPost}>
-            {!isLoading ? "POST" : "POSTING"}
+          <Button disabled={isLoading} onClick={updatePost}>
+            {!isLoading ? "UPDATE" : "UPDATING"}
           </Button>
         </DialogActions>
       </Dialog>
