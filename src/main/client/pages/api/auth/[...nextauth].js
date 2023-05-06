@@ -13,5 +13,34 @@ export const authOptions = {
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
     }),
   ],
+  callbacks: {
+    async signIn(user, account, profile) {
+      const { email, name, image } = user;
+      const firstName = name.split(" ")[0];
+      const lastName = name.split(" ")[1];
+
+      try {
+        const response = await axios.post(
+          "http://localhost:8080/api/v1/createUser",
+          {
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+          }
+        );
+
+        if (response.status === 200) {
+          console.log("User created successfully");
+          return true;
+        } else {
+          console.log("Error creating user");
+          return false;
+        }
+      } catch (error) {
+        console.log("Error creating user:", error);
+        return false;
+      }
+    },
+  },
 };
 export default NextAuth(authOptions);
