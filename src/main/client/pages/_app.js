@@ -1,6 +1,12 @@
 import "main/styles/globals.css";
-// import { ToastProvider } from "react-hot-toast";
+import { SessionProvider } from "next-auth/react";
 
-export default function App({ Component, pageProps }) {
-  return <Component {...pageProps} />;
+function App({ session, Component, pageProps }) {
+  return (
+    <SessionProvider session={session}>
+      <Component {...pageProps} />
+    </SessionProvider>
+  );
 }
+
+export default App;

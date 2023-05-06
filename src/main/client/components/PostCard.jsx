@@ -51,6 +51,7 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
     <Card sx={{ maxWidth: 345, position: "relative" }}>
       <Box display="flex" flexDirection="column">
         <CardHeader
+          sx={{ zIndex: 10 }}
           avatar={
             <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
               {userFirstName[0]}

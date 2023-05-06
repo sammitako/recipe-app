@@ -5,9 +5,10 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Link from "next/link";
-import { useState } from "react";
-import { useAtom } from "jotai";
-import { navbarIsLoggedInJotai, navbarTitleJotai } from "main/libs/jotai";
+import { signOut, useSession } from "next-auth/react";
+import Login from "./Login";
+import Image from "next/image";
+import Loader from "./Loader";
 
 const navItems = [
   { name: "My Profile", link: "/profile" },
@@ -16,66 +17,75 @@ const navItems = [
 ];
 
 function Navbar() {
-  const [title, setTitle] = useAtom(navbarTitleJotai);
-  const [isLoggedIn, setIsLoggedIn] = useAtom(navbarIsLoggedInJotai);
+  const { data: session, status } = useSession();
 
-  const handleLoginClick = () => {
-    if (isLoggedIn) {
-      setTitle("JUBANG");
+  return status === "loading" ? (
+    <Loader />
+  ) : (
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
+      <AppBar component="nav">
+        <Toolbar>
+          <Link
+            href="/"
+            style={{
+              fontWeight: 700,
+              color: "#fff",
+              textDecoration: "none",
+              justifyContent: "center",
+              alignItems: "center",
+              display: "flex",
+            }}
+            passHref
+          >
+            <Image
+              style={{ borderRadius: "30%" }}
+              height="40"
+              width="40"
+              layout="fixed"
+              src={session?.user?.image}
+              alt="user-image"
+            />
+          </Link>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, ml: 2 }}>
+            <Link
+              href="/"
+              style={{
+                fontWeight: 700,
+                color: "#fff",
+                textDecoration: "none",
+              }}
+              passHref
+            >
+              {session?.user?.name}
+            </Link>
+          </Typography>
 
-      setIsLoggedIn(!isLoggedIn);
-    } else {
-      setTitle("SAM PARK");
-      setIsLoggedIn(!isLoggedIn);
-    }
-    // logout logic
-  };
-
-  return (
-    <>
-      <Box sx={{ display: "flex" }}>
-        <CssBaseline />
-        <AppBar component="nav">
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              <Link
-                href="/"
-                style={{
-                  fontWeight: 700,
-                  color: "#fff",
-                  textDecoration: "none",
-                }}
-                passHref
-              >
-                {title}
-              </Link>
-            </Typography>
-
-            <Box>
-              {isLoggedIn ? (
-                <>
-                  <Link href="/profile" passHref>
-                    <Button sx={{ color: "#fff" }}>My Profile</Button>
-                  </Link>
-                  <Link href="/recipes" passHref>
-                    <Button sx={{ color: "#fff" }}>My Recipes</Button>
-                  </Link>
-                  <Link href="/" passHref>
-                    <Button sx={{ color: "#fff" }} onClick={handleLoginClick}>
-                      Logout
-                    </Button>
-                  </Link>
-                </>
-              ) : (
-                <Button sx={{ color: "#fff" }} onClick={handleLoginClick}>
-                  Login
-                </Button>
-              )}
-            </Box>
-          </Toolbar>
-        </AppBar>
-      </Box>
-    </>
+          <Box sx={{ justifyContent: "" }}>
+            {session ? (
+              <>
+                <Link href="/profile" passHref>
+                  <Button sx={{ color: "#fff" }}>My Profile</Button>
+                </Link>
+                <Link href="/recipes" passHref>
+                  <Button sx={{ color: "#fff" }}>My Recipes</Button>
+                </Link>
+                <Link href="/" passHref>
+                  <Button
+                    sx={{ color: "#fff" }}
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                  >
+                    Logout
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <Login />
+            )}
+          </Box>
+        </Toolbar>
+      </AppBar>
+    </Box>
   );
 }
 export default Navbar;

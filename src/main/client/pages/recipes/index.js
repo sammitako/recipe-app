@@ -1,5 +1,4 @@
 import { Box, Container, Typography } from "@mui/material";
-import CreateButton from "main/components/CreateButton";
 import Layout from "main/components/Layout";
 import PostList from "main/components/PostList";
 import SearchBar from "main/components/SearchBar";
