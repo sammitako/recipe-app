@@ -17,7 +17,7 @@ import axios from "axios";
 import moment from "moment";
 import { toast } from "react-hot-toast";
 import { useAtom } from "jotai";
-import { postListJotai } from "main/libs/jotai";
+import { currentUserJotai, postListJotai } from "main/libs/jotai";
 import { useSession } from "next-auth/react";
 
 const useStyles = makeStyles(() => ({
@@ -84,9 +84,8 @@ export default function CreateButton() {
   const [file, setFile] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
   const [post, setPost] = useState(initialPostState);
-  const [userId, setUserId] = useState(null);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [currentUser, setCurrentUser] = useAtom(currentUserJotai);
+  const [isPostClicked, setIsPostClicked] = useState(false); // to prevent user click outside of Dialog
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: "image/*",
@@ -127,7 +126,12 @@ export default function CreateButton() {
     setFile([]); // Reset the file as well
     setOpen(false);
   };
-
+  const handleDialogClose = (event, reason) => {
+    if (reason === "backdropClick" && (isLoading || isPostClicked)) {
+      return;
+    }
+    handleClose();
+  };
   const handleChange = (event) => {
     setPost({ ...post, [event.target.name]: event.target.value });
   };
@@ -142,26 +146,6 @@ export default function CreateButton() {
       console.log(error);
     }
   };
-
-  const fetchUserData = async () => {
-    try {
-      const response = await axios.get(
-        process.env.NEXT_PUBLIC_BASE_API_URL +
-          `/userByEmail/${session.user.email}`
-      );
-      if (response.status === 200) {
-        const user = response.data;
-        setUserId(user.id);
-        setFirstName(user.firstName);
-        setLastName(user.lastName);
-      } else {
-        console.log("Error finding user");
-      }
-    } catch (error) {
-      console.log("Error finding user:", error);
-    }
-  };
-
   const uploadImageToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -185,26 +169,22 @@ export default function CreateButton() {
   };
 
   const createPost = async (e) => {
-    setIsLoading(true);
     e.preventDefault();
+    setIsLoading(true);
+    setIsPostClicked(true);
 
     const coverImgUrl = await uploadImageToCloudinary(file);
     const updatedPost = {
       ...post,
-      userId,
-      userFirstName: firstName,
-      userLastName: lastName,
+      userId: currentUser.userId,
+      userFirstName: currentUser.firstName,
+      userLastName: currentUser.lastName,
       coverImgUrl,
       createdAt: moment().toISOString(),
     };
 
-    try {
-      toast.promise(saveSettings(isLoading), {
-        loading: "Saving...",
-        success: <b>Recipe shared successfully!</b>,
-        error: <b>Failed to post.</b>,
-      });
-      const response = await axios.post(
+    toast.promise(
+      axios.post(
         process.env.NEXT_PUBLIC_BASE_API_URL + "/createPost",
         updatedPost,
         {
@@ -212,20 +192,22 @@ export default function CreateButton() {
             "Content-Type": "application/json",
           },
         }
-      );
-      setPostList((prevPosts) => [response.data, ...prevPosts]);
-      // toast.success("Thanks for sharing!");
-      handleClose(); // Reset the input fields
-    } catch (error) {
-      if (error.response) {
-        toast.error("Posting didn't work.");
-        console.log(error.response);
-        console.log(error.response.status);
-        console.log(error.response.headers);
+      ),
+      {
+        loading: "Posting...",
+        success: (response) => {
+          setPostList((prevPosts) => [response.data, ...prevPosts]);
+          handleClose(); // Reset the input fields
+          return "Successfully posted!";
+        },
+        error: (err) => {
+          console.error(err);
+          return "Posting didn't work.";
+        },
       }
-    }
+    );
     setIsLoading(false);
-    setOpen(false);
+    setIsPostClicked(false);
   };
 
   useEffect(() => {
@@ -236,11 +218,6 @@ export default function CreateButton() {
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
     return () => URL.revokeObjectURL(file.preview);
   }, [file]);
-  useEffect(() => {
-    if (session) {
-      fetchUserData();
-    }
-  }, [session]);
   return (
     <Box
       sx={{
@@ -260,7 +237,7 @@ export default function CreateButton() {
       >
         Share your recipe
       </Button>
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={open} onClose={handleDialogClose}>
         <DialogTitle>Share my recipe</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
@@ -366,7 +343,11 @@ export default function CreateButton() {
           </section>
         </DialogContent>
         <DialogActions>
-          {!isLoading && <Button onClick={handleClose}>Cancel</Button>}
+          {!isLoading && (
+            <Button disabled={isLoading || isPostClicked} onClick={handleClose}>
+              Cancel
+            </Button>
+          )}
           <Button disabled={isLoading} onClick={createPost}>
             {!isLoading ? "POST" : "POSTING"}
           </Button>

@@ -83,6 +83,13 @@ public class PostService {
 
 
     public Post createPost(Post post) {
+        Optional<User> userOptional = userRepository.findById(post.getUserId());
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            post.setUserFirstName(user.getFirstName());
+            post.setUserLastName(user.getLastName());
+            post.setProfileImgUrl(user.getProfileImgUrl());
+        }
         return postRepository.save(post);
     }
 

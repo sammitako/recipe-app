@@ -1,6 +1,9 @@
 package com.example.recipeapp.user;
 import com.example.recipeapp.post.Post;
+import com.mongodb.DuplicateKeyException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -12,6 +15,8 @@ import java.util.Optional;
 @RequestMapping("/api/v1")
 public class UserController {
     private final UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping(value="/users")
     @CrossOrigin
@@ -32,8 +37,15 @@ public class UserController {
     }
     @PostMapping("/createUser")
     @CrossOrigin
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createUser(user));
+    public ResponseEntity<?> createUser(@RequestBody User user) {
+        try {
+            User savedUser = userRepository.save(user);
+            return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+        } catch (DuplicateKeyException e) {
+            return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("An error occurred while saving the user", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     @PutMapping("/updateUser")
     @CrossOrigin

@@ -24,7 +24,7 @@ const PostList = () => {
         process.env.NEXT_PUBLIC_BASE_API_URL + "/posts"
       );
       setPosts(response.data);
-      console.log(response.data);
+      // console.log(response.data);
     } catch (error) {
       console.log(error);
     } finally {

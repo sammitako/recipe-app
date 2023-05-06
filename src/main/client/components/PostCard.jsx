@@ -16,6 +16,8 @@ import { Box, Chip, Skeleton } from "@mui/material";
 import Image from "next/image";
 import SettingButton from "./SettingButton";
 import Moment from "react-moment";
+import { useAtom } from "jotai";
+import { currentUserJotai } from "main/libs/jotai";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -31,6 +33,7 @@ const ExpandMore = styled((props) => {
 const PostCard = ({ post, expanded, handleExpandClick }) => {
   const {
     id,
+    userId,
     userFirstName,
     userLastName,
     profileImgUrl,
@@ -43,7 +46,9 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
   } = post;
   const userFullName = userFirstName?.concat(" ", userLastName);
   const [isLoadingImage, setIsLoadingImage] = useState(true);
-  console.log(profileImgUrl);
+  const [currentUser, setCurrentUser] = useAtom(currentUserJotai);
+  console.log("USER POST", currentUser);
+  console.log("IMAGE:", profileImgUrl);
 
   const handleImageLoad = () => {
     setIsLoadingImage(false);
@@ -74,8 +79,12 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
               </Avatar>
             )
           }
-          action={<SettingButton postId={id} />}
-          title={userFullName}
+          action={
+            currentUser?.userId === userId ? (
+              <SettingButton postId={id} />
+            ) : null
+          }
+          title={userFirstName ? userFullName : "Deleted User"}
           subheader={
             <Moment format="MMM D, YYYY" withTitle>
               {createdAt}

@@ -5,45 +5,28 @@ import React, { useEffect, useState } from "react";
 import Loader from "./Loader";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { currentUserJotai } from "main/libs/jotai";
+import { useAtom } from "jotai";
 
 const Profile = () => {
   const { data: session, status } = useSession();
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [currentUser, setCurrentUser] = useAtom(currentUserJotai);
   const [isLoading, setIsLoading] = useState(false);
+  const [firstName, setFirstName] = useState(currentUser?.firstName);
+  const [lastName, setLastName] = useState(currentUser?.lastName);
 
-  const fetchUserData = async () => {
-    try {
-      const response = await axios.get(
-        process.env.NEXT_PUBLIC_BASE_API_URL +
-          `/userByEmail/${session.user.email}`
-      );
-      if (response.status === 200) {
-        const user = response.data;
-        setFirstName(user.firstName);
-        setLastName(user.lastName);
-      } else {
-        console.log("Error finding user");
-      }
-    } catch (error) {
-      console.log("Error finding user:", error);
-    }
-  };
-
-  const updateUser = async (e, id, firstName, lastName) => {
+  const handleSaveButtonClick = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setFirstName(firstName);
-    setLastName(lastName);
     try {
       setTimeout(async () => {
         const response = await axios.put(
           process.env.NEXT_PUBLIC_BASE_API_URL + "/updateUser",
           {
-            id,
+            id: currentUser.userId,
             email: session.user.email,
-            firstName,
-            lastName,
+            firstName: firstName,
+            lastName: lastName,
           }
         );
         if (response.status === 200) {
@@ -59,29 +42,6 @@ const Profile = () => {
       setIsLoading(false);
     }
   };
-
-  const handleSaveButtonClick = async (e) => {
-    try {
-      const response = await axios.get(
-        process.env.NEXT_PUBLIC_BASE_API_URL +
-          `/userByEmail/${session.user.email}`
-      );
-      if (response.status === 200) {
-        const user = response.data;
-        updateUser(e, user.id, firstName, lastName);
-      } else {
-        console.log("Error finding user");
-      }
-    } catch (error) {
-      console.log("Error finding user:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (session && session.user) {
-      fetchUserData();
-    }
-  }, [session]);
 
   return status === "loading" ? (
     <Loader />

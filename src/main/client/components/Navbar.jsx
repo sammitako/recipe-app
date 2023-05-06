@@ -9,37 +9,37 @@ import { signOut, useSession } from "next-auth/react";
 import Login from "./Login";
 import Image from "next/image";
 import Loader from "./Loader";
-import { useEffect, useState } from "react";
+import { currentUserJotai } from "main/libs/jotai";
+import { useAtom } from "jotai";
+import { useEffect } from "react";
 import axios from "axios";
-
-const navItems = [
-  { name: "My Profile", link: "/profile" },
-  { name: "My Recipe", link: "/recipes" },
-  { name: "Logout" },
-];
 
 function Navbar() {
   const { data: session, status } = useSession();
-  const [userId, setUserId] = useState(null);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [currentUser, setCurrentUser] = useAtom(currentUserJotai);
 
   const fetchUserData = async () => {
-    try {
-      const response = await axios.get(
-        process.env.NEXT_PUBLIC_BASE_API_URL +
-          `/userByEmail/${session.user.email}`
-      );
-      if (response.status === 200) {
-        const user = response.data;
-        setUserId(user.id);
-        setFirstName(user.firstName);
-        setLastName(user.lastName);
-      } else {
-        console.log("Error finding user");
+    if (session && session.user) {
+      const { email } = session.user;
+
+      try {
+        const response = await axios.get(
+          process.env.NEXT_PUBLIC_BASE_API_URL + `/userByEmail/${email}`
+        );
+        if (response.status === 200) {
+          const user = response.data;
+          setCurrentUser({
+            userId: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            profileImgUrl: user.profileImgUrl,
+          });
+        } else {
+          console.log("Error finding user");
+        }
+      } catch (error) {
+        console.log("Error finding user:", error);
       }
-    } catch (error) {
-      console.log("Error finding user:", error);
     }
   };
 
@@ -48,7 +48,9 @@ function Navbar() {
       fetchUserData();
     }
   }, [session]);
-
+  // useEffect(() => {
+  //   console.log("currentUser => ", currentUser);
+  // }, [currentUser]);
   return status === "loading" ? (
     <Loader />
   ) : (
@@ -69,11 +71,12 @@ function Navbar() {
             passHref
           >
             <Image
+              priority
               style={{ borderRadius: "30%" }}
               height="40"
               width="40"
               layout="fixed"
-              src={session?.user?.image}
+              src={session.user.image}
               alt="user-image"
             />
           </Link>
@@ -87,7 +90,7 @@ function Navbar() {
               }}
               passHref
             >
-              {firstName} {lastName}
+              {currentUser?.firstName} {currentUser?.lastName}
             </Link>
           </Typography>
 

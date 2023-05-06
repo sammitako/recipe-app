@@ -27,7 +27,7 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        // Check if the post exists before trying to update it
+        // Check if the user exists before trying to update it
         if (userRepository.existsById(user.getId())) {
             return userRepository.save(user);
         } else {

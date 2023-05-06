@@ -6,56 +6,63 @@ import PostList from "./PostList";
 import Layout from "./Layout";
 import { useSession } from "next-auth/react";
 import axios from "axios";
+import { useAtom } from "jotai";
+import { currentUserJotai } from "main/libs/jotai";
 
 const Feed = () => {
   const { data: session, status } = useSession();
   const [userCreationAttempted, setUserCreationAttempted] = useState(false);
 
   const checkUserAndCreate = async () => {
-    const { email, name, image } = session?.user;
-    const firstName = name?.split(" ")[0];
-    const lastName = name?.split(" ")[1];
-    try {
-      const existingUser = await axios.get(
-        process.env.NEXT_PUBLIC_BASE_API_URL + `/userByEmail/${email}`
-      );
+    return new Promise(async (resolve) => {
+      const { email, name, image } = session?.user;
+      const firstName = name?.split(" ")[0];
+      const lastName = name?.split(" ")[1];
+      try {
+        const existingUser = await axios.get(
+          process.env.NEXT_PUBLIC_BASE_API_URL + `/userByEmail/${email}`
+        );
 
-      if (existingUser.status === 200 || existingUser.status === 201) {
-        console.log("User already exists");
-      } else {
-        console.log("Error finding user");
-      }
-    } catch (error) {
-      if (error.response && error.response.status === 404) {
-        try {
-          const response = await axios.post(
-            process.env.NEXT_PUBLIC_BASE_API_URL + "/createUser",
-            {
-              email: email,
-              firstName: firstName,
-              lastName: lastName,
-              profileImgUrl: image, // Pass the user image URL when creating a new user
-            }
-          );
-
-          if (response.status === 200 || response.status === 201) {
-            console.log("User created successfully");
-          } else {
-            console.log("Error creating user");
-          }
-        } catch (creationError) {
-          console.log("Error creating user:", creationError);
+        if (existingUser.status === 200 || existingUser.status === 201) {
+          console.log("User already exists");
+        } else {
+          console.log("Error finding user");
         }
-      } else {
-        console.log("Error creating or finding user:", error);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          try {
+            const response = await axios.post(
+              process.env.NEXT_PUBLIC_BASE_API_URL + "/createUser",
+              {
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                profileImgUrl: image, // Pass the user image URL when creating a new user
+              }
+            );
+
+            if (response.status === 200 || response.status === 201) {
+              console.log("User created successfully");
+            } else {
+              console.log("Error creating user");
+            }
+          } catch (creationError) {
+            console.log("Error creating user:", creationError);
+          }
+        } else {
+          console.log("Error creating or finding user:", error);
+        }
       }
-    }
-    setUserCreationAttempted(true);
+      setUserCreationAttempted(true);
+      resolve();
+    });
   };
 
   useEffect(() => {
     if (session && session?.user && !userCreationAttempted) {
-      checkUserAndCreate();
+      checkUserAndCreate().then(() => {
+        console.log("Creating user page");
+      });
     }
   }, [session, userCreationAttempted]);
 
