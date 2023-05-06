@@ -8,11 +8,17 @@ import DialogTitle from "@mui/material/DialogTitle";
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 import { Autocomplete, Box, Chip } from "@mui/material";
-import { topFilms } from "../libs/data";
+import { ingredientList } from "../libs/ingredients";
 import { useDropzone } from "react-dropzone";
 import { makeStyles } from "@mui/styles";
 import Image from "next/image";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import axios from "axios";
+import moment from "moment";
+import { toast } from "react-hot-toast";
+import { useAtom } from "jotai";
+import { currentUserJotai, postListJotai } from "main/libs/jotai";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
 const useStyles = makeStyles(() => ({
@@ -58,6 +64,18 @@ const img = {
   height: "100%",
 };
 
+const initialPostState = {
+  userId: "",
+  userFirstName: "",
+  userLastName: "",
+  title: "",
+  category: "",
+  ingredients: [],
+  content: "",
+  coverImgUrl: "",
+  createdAt: "",
+};
+
 export default function UpdateButton({
   updateModalOpen,
   setUpdateModalOpen,
@@ -65,19 +83,14 @@ export default function UpdateButton({
 }) {
   const router = useRouter();
   const classes = useStyles();
+  const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [postList, setPostList] = useAtom(postListJotai);
   const [file, setFile] = useState([]);
-  const [post, setPost] = useState({
-    id: "",
-    userId: "",
-    userFirstName: "",
-    userLastName: "",
-    title: "",
-    category: "",
-    ingredients: [],
-    content: "",
-    coverImgUrl: "",
-    createdAt: "",
-  });
+  const [categoryList, setCategoryList] = useState([]);
+  const [updatedPost, setUpdatedPost] = useState(initialPostState);
+  const [currentUser, setCurrentUser] = useAtom(currentUserJotai);
+  const [isPostClicked, setIsPostClicked] = useState(false); // to prevent user click outside of Dialog
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: "image/*",
@@ -109,6 +122,36 @@ export default function UpdateButton({
     </div>
   ) : null;
 
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setPost(initialPostState);
+    setFile([]); // Reset the file as well
+    setOpen(false);
+  };
+  const handleDialogClose = (event, reason) => {
+    if (reason === "backdropClick" && (isLoading || isPostClicked)) {
+      return;
+    }
+    handleClose();
+  };
+  const handleChange = (event) => {
+    setPost({ ...post, [event.target.name]: event.target.value });
+  };
+
+  const fetchCategoryList = async () => {
+    try {
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_BASE_API_URL + "/categories"
+      );
+      setCategoryList(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const fetchPostById = async () => {
     try {
       const response = await axios.get(
@@ -120,6 +163,74 @@ export default function UpdateButton({
     }
   };
 
+  const uploadImageToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append(
+      "upload_preset",
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+    );
+
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      return response.data.secure_url;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const createPost = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setIsPostClicked(true);
+
+    const coverImgUrl = await uploadImageToCloudinary(file);
+    const updatedPost = {
+      ...post,
+      userId: currentUser.userId,
+      userFirstName: currentUser.firstName,
+      userLastName: currentUser.lastName,
+      coverImgUrl,
+      createdAt: moment().toISOString(),
+    };
+
+    toast.promise(
+      axios.post(
+        process.env.NEXT_PUBLIC_BASE_API_URL + "/createPost",
+        updatedPost,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      ),
+      {
+        loading: "Posting...",
+        success: (response) => {
+          setPostList((prevPosts) => [response.data, ...prevPosts]);
+          handleClose(); // Reset the input fields
+          return "Successfully posted!";
+        },
+        error: (err) => {
+          console.error(err);
+          return "Posting didn't work.";
+        },
+      }
+    );
+    setIsLoading(false);
+    setIsPostClicked(false);
+  };
+
+  useEffect(() => {
+    fetchCategoryList();
+  }, []);
+
   useEffect(() => {
     if (updateModalOpen) {
       fetchPostById();
@@ -130,17 +241,27 @@ export default function UpdateButton({
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
     return () => URL.revokeObjectURL(file.preview);
   }, [file]);
-
   return (
     <Box
       sx={{
         display: "flex",
         justifyContent: "center",
         width: "100%",
+        mt: 3,
+        mb: 5,
       }}
     >
-      <Dialog open={updateModalOpen} onClose={() => setUpdateModalOpen(false)}>
-        <DialogTitle>Update my recipe</DialogTitle>
+      <Button
+        variant="text"
+        startIcon={<AddIcon />}
+        onClick={handleClickOpen}
+        sx={{ height: 50 }}
+        fullWidth
+      >
+        Share your recipe
+      </Button>
+      <Dialog open={open} onClose={handleDialogClose}>
+        <DialogTitle>Share my recipe</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
             To share your recipe, you will need a cover photo. Please enter all
@@ -148,34 +269,52 @@ export default function UpdateButton({
           </DialogContentText>
           <TextField
             sx={{ mb: 2 }}
+            required
             autoFocus
             margin="dense"
             id="title"
             label="Title"
             fullWidth
             variant="outlined"
-            defaultValue={post.title}
-            required
-            InputLabelProps={{
-              shrink: true,
-            }}
+            name="title"
+            defaultValue={updatedPost.title}
+            onChange={(e) => handleChange(e)}
           />
 
           <Autocomplete
             sx={{ mb: 2 }}
+            required
             disablePortal
             fullWidth
             id="combo-box-demo"
-            options={topFilms.map((option) => option.title)}
-            defaultValue={post.category}
+            options={categoryList.map((category) => category)}
             renderInput={(params) => <TextField {...params} label="Category" />}
+            name="category"
+            value={updatedPost?.category}
+            defaultValue={post?.category}
+            onChange={(event, newValue) => {
+              setPost((prevState) => ({
+                ...prevState,
+                category: newValue,
+              }));
+            }}
           />
           <Autocomplete
             sx={{ mb: 2.5 }}
+            required
             multiple
             id="tags-filled"
-            options={topFilms.map((option) => option.title)}
-            defaultValue={post.ingredients}
+            name="ingredients"
+            value={updatedPost?.ingredients}
+            defaultValue={post?.ingredients}
+            onChange={(event, newValue) => {
+              setPost((prevState) => ({
+                ...prevState,
+                ingredients: newValue,
+              }));
+            }}
+            options={ingredientList.map((incredient) => incredient)}
+            // defaultValue={[topFilms[13].title]}
             freeSolo
             renderTags={(value, getTagProps) =>
               value.map((option, index) => (
@@ -197,22 +336,28 @@ export default function UpdateButton({
           />
           <TextField
             required
-            InputLabelProps={{
-              shrink: true,
-            }}
             fullWidth
             id="outlined-multiline-flexible"
             label="Recipe"
-            defaultValue={post.content}
+            placeholder="Share your method"
             multiline
             rows={10}
+            name="content"
+            value={updatedPost?.content}
+            defaultValue={post?.content}
+            onChange={(e) => handleChange(e)}
           />
           <section className="container">
             <div
               style={{ cursor: "pointer" }}
               {...getRootProps({ className: classes.dropzone })}
             >
-              <input {...getInputProps()} />
+              <input
+                name="coverImgUrl"
+                value={updatedPost?.coverImgUrl}
+                onChange={(e) => handleChange(e)}
+                {...getInputProps()}
+              />
               <p>
                 Drag and drop a cover image file here, or click to select file
               </p>
@@ -224,8 +369,14 @@ export default function UpdateButton({
           </section>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setUpdateModalOpen(false)}>Cancel</Button>
-          <Button onClick={() => setUpdateModalOpen(false)}>Update</Button>
+          {!isLoading && (
+            <Button disabled={isLoading || isPostClicked} onClick={handleClose}>
+              Cancel
+            </Button>
+          )}
+          <Button disabled={isLoading} onClick={createPost}>
+            {!isLoading ? "POST" : "POSTING"}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

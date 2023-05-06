@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -26,12 +27,32 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User createUserIfNotExists(User user) {
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new IllegalArgumentException("Email already exists");
+        } else {
+            return userRepository.save(user);
+        }
+    }
     public User updateUser(User user) {
         // Check if the user exists before trying to update it
         if (userRepository.existsById(user.getId())) {
             return userRepository.save(user);
         } else {
             throw new ResourceNotFoundException("User not found with id: " + user.getId());
+        }
+    }
+
+    public User updateUserProfileImgUrl(String id, Map<String, Object> updates) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (updates.containsKey("profileImgUrl")) {
+                user.setProfileImgUrl((String) updates.get("profileImgUrl"));
+            }
+            return userRepository.save(user);
+        } else {
+            throw new ResourceNotFoundException("User not found with id: " + id);
         }
     }
 

@@ -47,8 +47,6 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
   const userFullName = userFirstName?.concat(" ", userLastName);
   const [isLoadingImage, setIsLoadingImage] = useState(true);
   const [currentUser, setCurrentUser] = useAtom(currentUserJotai);
-  console.log("USER POST", currentUser);
-  console.log("IMAGE:", profileImgUrl);
 
   const handleImageLoad = () => {
     setIsLoadingImage(false);

@@ -103,6 +103,25 @@ public class PostService {
         }
     }
 
+    public Post updatePostById(String postId, Post post) {
+        try {
+            Optional<Post> optionalPost = postRepository.findById(postId);
+            if (optionalPost.isPresent()) {
+                Post existingPost = optionalPost.get();
+                existingPost.setTitle(post.getTitle());
+                existingPost.setCategory(post.getCategory());
+                existingPost.setIngredients(post.getIngredients());
+                existingPost.setContent(post.getContent());
+                existingPost.setCoverImgUrl(post.getCoverImgUrl());
+                return postRepository.save(existingPost);
+            } else {
+                throw new ResourceNotFoundException("Post not found with id: " + postId);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("An error occurred while updating the post", e);
+        }
+    }
+
     public void deletePostById(String postId) {
         // Check if the post exists before trying to delete it
         if (postRepository.existsById(postId)) {

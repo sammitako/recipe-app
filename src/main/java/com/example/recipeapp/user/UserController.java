@@ -1,4 +1,5 @@
 package com.example.recipeapp.user;
+import com.example.recipeapp.exception.ResourceNotFoundException;
 import com.example.recipeapp.post.Post;
 import com.mongodb.DuplicateKeyException;
 import lombok.RequiredArgsConstructor;
@@ -40,12 +41,10 @@ public class UserController {
     @CrossOrigin
     public ResponseEntity<?> createUser(@RequestBody User user) {
         try {
-            if (userRepository.existsByEmail(user.getEmail())) {
-                return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
-            } else {
-                User savedUser = userRepository.save(user);
-                return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
-            }
+            User savedUser = userService.createUserIfNotExists(user);
+            return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>("An error occurred while saving the user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -58,21 +57,14 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(user));
     }
 
-    @PatchMapping("/user/{userId}")
+    @PatchMapping("/updateUser/{userId}")
     @CrossOrigin
     public ResponseEntity<?> updateUserProfileImgUrl(@PathVariable String id, @RequestBody Map<String, Object> updates) {
         try {
-            Optional<User> optionalUser = userRepository.findById(id);
-            if (optionalUser.isPresent()) {
-                User user = optionalUser.get();
-                if (updates.containsKey("profileImgUrl")) {
-                    user.setProfileImgUrl((String) updates.get("profileImgUrl"));
-                }
-                userRepository.save(user);
-                return new ResponseEntity<>(user, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
-            }
+            User updatedUser = userService.updateUserProfileImgUrl(id, updates);
+            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>("An error occurred while updating the user", HttpStatus.INTERNAL_SERVER_ERROR);
         }

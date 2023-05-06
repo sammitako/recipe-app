@@ -1,12 +1,16 @@
 package com.example.recipeapp.post;
 
+import com.example.recipeapp.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
+import java.util.Optional;
+
 @CrossOrigin(value="http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
@@ -44,6 +48,19 @@ public class PostController {
             @RequestBody Post post
     ) {
         return ResponseEntity.ok(postService.updatePost(post));
+    }
+
+    @PutMapping("/updatePost/{postId}")
+    @CrossOrigin
+    public ResponseEntity<?> updatePost(@PathVariable String postId, @RequestBody Post post) {
+        try {
+            Post updatedPost = postService.updatePostById(postId, post);
+            return new ResponseEntity<>(updatedPost, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping("/deletePost/{postId}")
