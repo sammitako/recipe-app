@@ -39,10 +39,12 @@ public class UserController {
     @CrossOrigin
     public ResponseEntity<?> createUser(@RequestBody User user) {
         try {
-            User savedUser = userRepository.save(user);
-            return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
-        } catch (DuplicateKeyException e) {
-            return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
+            if (userRepository.existsByEmail(user.getEmail())) {
+                return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
+            } else {
+                User savedUser = userRepository.save(user);
+                return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+            }
         } catch (Exception e) {
             return new ResponseEntity<>("An error occurred while saving the user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
