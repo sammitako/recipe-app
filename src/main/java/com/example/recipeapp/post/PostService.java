@@ -72,14 +72,18 @@ public class PostService {
         // Search in User collection
 //        List<User> users = userRepository.findByFirstNameRegexOrLastNameRegex(kwd, kwd);
 
+        // Split the keyword into first name and last name
+        String[] nameParts = kwd.split("\\s+");
+        String firstName = nameParts.length > 0 ? nameParts[0] : "";
+        String lastName = nameParts.length > 1 ? nameParts[1] : "";
+
         // Search in User collection
-        List<User> users = userRepository.findByFullNameRegexOrEmailRegex(kwd, kwd);
+        List<User> users = userRepository.findByFullNameRegexOrEmailRegex(firstName, lastName, kwd);
 
         // Get the userIds of the matching users
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
 
         // Add any posts written by the matching users to the posts list
-        posts.addAll(postRepository.findByUserIdIn(userIds));
         posts.addAll(postRepository.findByUserIdIn(userIds));
 
         return new ArrayList<>(posts);
