@@ -16,9 +16,9 @@ Recipe app is a platform where users can upload their recipes and search for rec
 - Update my recipes (restricted to my post only)
 - Delete my recipes (restricted to my post only)
 - View only my recipes or every recipe
-- Search recipes
-  - with post indexed
-  - with user indexed
+- Search recipes by author or post
+  - with post indexed (title, category, ingredients, recipe method)
+  - with user indexed (firstname, lastname, full-name)
 
 ### Built With
 - Framework: Spring Boot, Next.js (React)
