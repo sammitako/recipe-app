@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useAtom } from "jotai";
 import { currentUserJotai, postListJotai } from "main/libs/jotai";
+import { useRouter } from "next/router";
 
 const Feed = () => {
   const [posts, setPosts] = useAtom(postListJotai);
@@ -17,6 +18,7 @@ const Feed = () => {
   const { data: session, status } = useSession();
   const [userCreationAttempted, setUserCreationAttempted] = useState(false);
   const [currentUser, setCurrentUser] = useAtom(currentUserJotai);
+  const router = useRouter(); // create post -> import avatar right way
 
   const fetchPostList = async () => {
     setIsLoading(true);
@@ -56,6 +58,12 @@ const Feed = () => {
 
   const checkUserAndCreate = async () => {
     return new Promise(async (resolve) => {
+      // Check if the currentUser state is not empty
+      if (currentUser.userId !== null) {
+        resolve();
+        return;
+      }
+
       const { email, name, image } = session?.user;
       const firstName = name?.split(" ")[0];
       const lastName = name?.split(" ")[1];
@@ -78,6 +86,13 @@ const Feed = () => {
             lastName: existingUser.data.lastName,
             profileImgUrl: existingUser.data.profileImgUrl || image,
           });
+          // Update the user details in the posts
+          updatePostsUserDetails(
+            existingUser.data.id,
+            existingUser.data.firstName,
+            existingUser.data.lastName,
+            existingUser.data.profileImgUrl || image
+          );
 
           // Update the user's profileImgUrl if it has changed and existingUser does not have a profileImgUrl
           if (
@@ -131,6 +146,12 @@ const Feed = () => {
             );
             if (response.status === 200 || response.status === 201) {
               console.log("User created successfully");
+              setCurrentUser({
+                userId: response.data.id,
+                firstName: response.data.firstName,
+                lastName: response.data.lastName,
+                profileImgUrl: response.data.profileImgUrl || image,
+              });
             } else {
               console.log("Error creating user");
             }
