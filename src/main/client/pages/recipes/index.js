@@ -44,7 +44,7 @@ const MyRecipes = () => {
   }, [session]);
 
   useEffect(() => {
-    console.log(currentUser);
+    console.log(session);
     fetchPostList();
   }, []);
 

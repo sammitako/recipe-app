@@ -8,10 +8,13 @@ import GoogleIcon from "@mui/icons-material/Google";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import { signIn, useSession } from "next-auth/react";
 import Loader from "./Loader";
+import { useAtom } from "jotai";
+import { currentUserJotai } from "main/libs/jotai";
 
 const Login = () => {
   const { data: session, status } = useSession();
   const [userCreationAttempted, setUserCreationAttempted] = useState(false);
+  const [currentUser, setCurrentUser] = useAtom(currentUserJotai);
   const handleSignInWithGoogle = () => {
     signIn("google");
   };
@@ -29,6 +32,7 @@ const Login = () => {
         const existingUser = await axios.get(
           process.env.NEXT_PUBLIC_BASE_API_URL + `/userByEmail/${email}`
         );
+        console.log("ExistingUser:>> ", existingUser);
 
         if (existingUser.status === 200 || existingUser.status === 201) {
           console.log("User already exists");
@@ -41,16 +45,19 @@ const Login = () => {
                   `/updateUser/${existingUser.data.userId}`,
                 { profileImgUrl: image }
               );
+              setCurrentUser({
+                ...currentUser,
+                profileImgUrl: image,
+              });
               console.log("User profileImgUrl updated successfully");
             } catch (updateError) {
               console.log("Error updating user profileImgUrl:", updateError);
             }
           }
-        } else {
-          console.log("Error finding user");
         }
       } catch (error) {
         if (error.response && error.response.status === 404) {
+          // Create user
           try {
             const response = await axios.post(
               process.env.NEXT_PUBLIC_BASE_API_URL + "/createUser",
@@ -61,7 +68,6 @@ const Login = () => {
                 profileImgUrl: image, // Pass the user image URL when creating a new user
               }
             );
-
             if (response.status === 200 || response.status === 201) {
               console.log("User created successfully");
             } else {
