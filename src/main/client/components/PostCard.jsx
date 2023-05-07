@@ -51,6 +51,7 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
   const handleImageLoad = () => {
     setIsLoadingImage(false);
   };
+  console.log("post:>>", post);
 
   return (
     <Card sx={{ maxWidth: 345, position: "relative" }}>

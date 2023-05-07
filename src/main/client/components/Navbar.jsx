@@ -44,6 +44,7 @@ function Navbar() {
   };
 
   useEffect(() => {
+    console.log("Jotai currentUser:>> ", currentUser);
     if (session && session.user) {
       fetchUserData();
     }

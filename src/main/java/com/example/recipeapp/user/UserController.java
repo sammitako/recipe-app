@@ -56,8 +56,19 @@ public class UserController {
     ) {
         return ResponseEntity.ok(userService.updateUser(user));
     }
-
-    @PatchMapping("/updateUser/{userId}")
+    @PatchMapping("/updateUserNames/{userId}")
+    @CrossOrigin
+    public ResponseEntity<?> updateUserNames(@PathVariable String userId, @RequestBody Map<String, Object> updates) {
+        try {
+            User updatedUser = userService.updateUserNames(userId, updates);
+            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>("An error occurred while updating the user", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PatchMapping("/updateUserProfileImgUrl/{userId}")
     @CrossOrigin
     public ResponseEntity<?> updateUserProfileImgUrl(@PathVariable String userId, @RequestBody Map<String, Object> updates) {
         try {

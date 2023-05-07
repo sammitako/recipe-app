@@ -42,7 +42,24 @@ public class UserService {
             throw new ResourceNotFoundException("User not found with id: " + user.getId());
         }
     }
+    // For Profile.jsx
+    public User updateUserNames(String userId, Map<String, Object> updates) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (updates.containsKey("firstName")) {
+                user.setFirstName((String) updates.get("firstName"));
+            }
+            if (updates.containsKey("lastName")) {
+                user.setLastName((String) updates.get("lastName"));
+            }
+            return userRepository.save(user);
+        } else {
+            throw new ResourceNotFoundException("User not found with id: " + userId);
+        }
+    }
 
+    // For Feed.jsx
     public User updateUserProfileImgUrl(String userId, Map<String, Object> updates) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isPresent()) {

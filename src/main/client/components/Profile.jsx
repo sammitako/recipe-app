@@ -17,28 +17,36 @@ const Profile = () => {
 
   const handleSaveButtonClick = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // Set isLoading to true before making the API call
+    const updates = {
+      firstName: firstName,
+      lastName: lastName,
+    };
+    await handleUpdateUser(updates);
+  };
+
+  const handleUpdateUser = async (updates) => {
+    setIsLoading(true);
     try {
-      setTimeout(async () => {
-        const response = await axios.put(
-          process.env.NEXT_PUBLIC_BASE_API_URL + "/updateUser",
-          {
-            id: currentUser.userId,
-            email: session.user.email,
-            firstName: firstName,
-            lastName: lastName,
-          }
-        );
-        if (response.status === 200) {
-          toast.success("Successfully updated!");
-          console.log("User updated successfully");
-        } else {
-          console.log("Error updating user");
-        }
-        setIsLoading(false);
-      }, 2000);
+      const response = await axios.patch(
+        process.env.NEXT_PUBLIC_BASE_API_URL +
+          `/updateUser/${currentUser.userId}`,
+        updates
+      );
+      if (response.status === 200) {
+        toast.success("Successfully updated!");
+        console.log("User updated successfully");
+
+        // Update the currentUser atom with the updated values
+        setCurrentUser((prevUser) => ({
+          ...prevUser,
+          ...updates,
+        }));
+      } else {
+        console.log("Error updating user");
+      }
     } catch (error) {
       console.log("Error updating user:", error);
+    } finally {
       setIsLoading(false);
     }
   };
