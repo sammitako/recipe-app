@@ -4,7 +4,9 @@ Recipe app is a platform where users can upload their recipes and search for rec
 ### Features
 - Login and logout (Facebook, Google)
   - Unique email is required.
-  - Profile picture on app always reflects to those two provider's profile images.
+  - Profile picture on app first reflects to those two providers' profile images when registered.
+    - However, if admin change image deliberately on database, it will reflect current profileImgUrl data from database.
+    - Yet, if profileImgUrl is empty, it will reflect two providers' profile images. 
 - Update my account
   - Firstname, Lastname only
   - Profile picture will be updated when profile images from  those two provider updated.

@@ -78,7 +78,7 @@ function Navbar() {
               height="40"
               width="40"
               layout="fixed"
-              src={session.user.image}
+              src={currentUser.profileImgUrl}
               alt="user-image"
             />
           </Link>
