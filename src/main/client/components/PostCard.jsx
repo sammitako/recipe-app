@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { styled } from "@mui/material/styles";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
@@ -59,9 +59,9 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
         <CardHeader
           sx={{ zIndex: 10 }}
           avatar={
-            userProfileImgUrl ? (
+            currentUser.userId === userId ? (
               <Avatar
-                src={userProfileImgUrl}
+                src={currentUser.profileImgUrl}
                 alt={`${userFirstName} ${userLastName}`}
                 onError={(e) => {
                   e.target.onerror = null;
@@ -73,7 +73,16 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
                 {userFirstName && userFirstName[0]}
               </Avatar>
             ) : (
-              <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+              <Avatar
+                src={userProfileImgUrl}
+                alt={`${userFirstName} ${userLastName}`}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "";
+                  e.target.style.backgroundColor = red[500];
+                }}
+                aria-label="recipe"
+              >
                 {userFirstName && userFirstName[0]}
               </Avatar>
             )

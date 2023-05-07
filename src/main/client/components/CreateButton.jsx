@@ -212,6 +212,12 @@ export default function CreateButton() {
           success: (response) => {
             setPostList((prevPosts) => [response.data, ...prevPosts]);
             handleClose(); // Reset the input fields
+            // Emit the event
+            const event = new CustomEvent("postCreated", {
+              detail: response.data,
+            });
+            window.dispatchEvent(event);
+
             return "Successfully posted!";
           },
           error: (err) => {

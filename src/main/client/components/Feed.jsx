@@ -34,19 +34,12 @@ const Feed = () => {
     }
   };
 
-  const updatePostsBackendUserDetails = async (
-    userId,
-    firstName,
-    lastName,
-    profileImgUrl
-  ) => {
+  const updatePostsBackendUserDetails = async (userId, profileImgUrl) => {
     try {
       const response = await axios.patch(
         process.env.NEXT_PUBLIC_BASE_API_URL +
           `/updatePostsUserDetails/${userId}`,
         {
-          firstName,
-          lastName,
           profileImgUrl,
         }
       );
@@ -83,11 +76,15 @@ const Feed = () => {
             userId: existingUser.data.id,
             firstName: existingUser.data.firstName,
             lastName: existingUser.data.lastName,
-            profileImgUrl: existingUser.data.profileImgUrl,
+            profileImgUrl: existingUser.data.profileImgUrl || image,
           });
 
-          // Update the user's profileImgUrl if it has changed
-          if (existingUser.data.profileImgUrl !== image) {
+          // Update the user's profileImgUrl if it has changed and existingUser does not have a profileImgUrl
+          if (
+            existingUser.data.profileImgUrl !== image &&
+            !existingUser.data.profileImgUrl &&
+            image
+          ) {
             try {
               const updateResponse = await axios.patch(
                 process.env.NEXT_PUBLIC_BASE_API_URL +
@@ -97,16 +94,16 @@ const Feed = () => {
 
               console.log("Update response:", updateResponse);
               if (updateResponse.status === 200) {
-                setCurrentUser({
-                  ...currentUser,
+                setCurrentUser((prevUser) => ({
+                  ...prevUser,
                   profileImgUrl: image,
-                });
+                }));
                 console.log("User profileImgUrl updated successfully");
                 // Update the user details in the posts collection in the backend
                 updatePostsBackendUserDetails(
                   existingUser.data.id,
-                  firstName,
-                  lastName,
+                  existingUser.data.firstName,
+                  existingUser.data.lastName,
                   image
                 );
               } else {
