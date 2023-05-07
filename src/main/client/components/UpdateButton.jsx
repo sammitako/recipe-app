@@ -189,6 +189,25 @@ export default function UpdateButton({
     setIsLoading(true);
     setIsPostClicked(true);
 
+    // Validation check
+    const title = updatedPost?.title ?? currentPost?.title;
+    const category = updatedPost?.category ?? currentPost?.category;
+    const ingredients = updatedPost?.ingredients ?? currentPost?.ingredients;
+    const content = updatedPost?.content ?? currentPost?.content;
+
+    if (
+      !title ||
+      !category ||
+      (Array.isArray(ingredients) && ingredients.length === 0) ||
+      !content ||
+      !(file?.preview || currentPost?.coverImgUrl)
+    ) {
+      toast.error("Please fill in all required fields.");
+      setIsLoading(false);
+      setIsPostClicked(false);
+      return;
+    }
+
     const coverImgUrl =
       file && file?.preview !== currentPost?.coverImgUrl
         ? await uploadImageToCloudinary(file)

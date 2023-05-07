@@ -170,6 +170,19 @@ export default function CreateButton() {
 
   const createPost = async (e) => {
     e.preventDefault();
+
+    // Validation check
+    if (
+      !post.title ||
+      !post.category ||
+      post.ingredients.length === 0 ||
+      !post.content ||
+      !file.preview // Check for the presence of the 'preview' property
+    ) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
     setIsLoading(true);
     setIsPostClicked(true);
 
