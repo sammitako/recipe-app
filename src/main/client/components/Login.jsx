@@ -32,7 +32,6 @@ const Login = () => {
         const existingUser = await axios.get(
           process.env.NEXT_PUBLIC_BASE_API_URL + `/userByEmail/${email}`
         );
-        console.log("ExistingUser:>> ", existingUser);
 
         if (existingUser.status === 200 || existingUser.status === 201) {
           console.log("User already exists");
@@ -45,19 +44,17 @@ const Login = () => {
                   `/updateUser/${existingUser.data.userId}`,
                 { profileImgUrl: image }
               );
-              setCurrentUser({
-                ...currentUser,
-                profileImgUrl: image,
-              });
               console.log("User profileImgUrl updated successfully");
             } catch (updateError) {
               console.log("Error updating user profileImgUrl:", updateError);
             }
           }
+        } else {
+          console.log("Error finding user");
         }
       } catch (error) {
+        // Create user
         if (error.response && error.response.status === 404) {
-          // Create user
           try {
             const response = await axios.post(
               process.env.NEXT_PUBLIC_BASE_API_URL + "/createUser",

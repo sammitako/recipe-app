@@ -17,7 +17,7 @@ const Profile = () => {
 
   const handleSaveButtonClick = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsLoading(true); // Set isLoading to true before making the API call
     try {
       setTimeout(async () => {
         const response = await axios.put(

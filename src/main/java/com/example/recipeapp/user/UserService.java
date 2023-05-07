@@ -34,45 +34,27 @@ public class UserService {
             return userRepository.save(user);
         }
     }
-    public User updateUser(String userId, User userUpdates) {
+    public User updateUser(User user) {
         // Check if the user exists before trying to update it
-        Optional<User> userOptional = userRepository.findById(userId);
+        if (userRepository.existsById(user.getId())) {
+            return userRepository.save(user);
+        } else {
+            throw new ResourceNotFoundException("User not found with id: " + user.getId());
+        }
+    }
 
-        if (userOptional.isPresent()) {
-            User existingUser = userOptional.get();
-
-            // Update only the fields that are provided in userUpdates
-            if (userUpdates.getEmail() != null) {
-                existingUser.setEmail(userUpdates.getEmail());
+    public User updateUserProfileImgUrl(String userId, Map<String, Object> updates) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (updates.containsKey("profileImgUrl")) {
+                user.setProfileImgUrl((String) updates.get("profileImgUrl"));
             }
-            if (userUpdates.getFirstName() != null) {
-                existingUser.setFirstName(userUpdates.getFirstName());
-            }
-            if (userUpdates.getLastName() != null) {
-                existingUser.setLastName(userUpdates.getLastName());
-            }
-            if (userUpdates.getProfileImgUrl() != null) {
-                existingUser.setProfileImgUrl(userUpdates.getProfileImgUrl());
-            }
-
-            return userRepository.save(existingUser);
+            return userRepository.save(user);
         } else {
             throw new ResourceNotFoundException("User not found with id: " + userId);
         }
     }
-
-//    public User updateUserProfileImgUrl(String id, Map<String, Object> updates) {
-//        Optional<User> optionalUser = userRepository.findById(id);
-//        if (optionalUser.isPresent()) {
-//            User user = optionalUser.get();
-//            if (updates.containsKey("profileImgUrl")) {
-//                user.setProfileImgUrl((String) updates.get("profileImgUrl"));
-//            }
-//            return userRepository.save(user);
-//        } else {
-//            throw new ResourceNotFoundException("User not found with id: " + id);
-//        }
-//    }
 
     public void deleteUserById(String userId) {
         // Check if the post exists before trying to delete it
