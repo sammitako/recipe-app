@@ -40,9 +40,9 @@ Recipe app is a platform where users can upload their recipes and search for rec
    Make sure installed containers are running: `mongo_db` and `mongo_express`
 2. Go to `client` directory.
     ```shell
-   # http://localhost:3000
     yarn
     yarn dev
+   # http://localhost:3000
     ```
 3. Create database called `recipe-api-db` at http://localhost:8081.
 4. Create the index on post and user fields:</br>
