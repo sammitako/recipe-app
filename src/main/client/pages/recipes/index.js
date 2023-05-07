@@ -81,11 +81,14 @@ const MyRecipes = () => {
             <Typography variant="h6" textAlign="center" mt={3}>
               You haven&apos;t shared any recipes.
             </Typography>
+          ) : searchKeyword && searchResults.length === 0 ? (
+            <Typography variant="h6" textAlign="center" mt={3}>
+              No recipe post related to &quot;{searchKeyword}&quot;
+            </Typography>
           ) : searchKeyword &&
-            (searchResults.length === 0 ||
-              searchResults.filter(
-                (result) => result.userId !== currentUser.userId
-              )) ? (
+            searchResults?.filter(
+              (result) => result.userId === currentUser.userId
+            )?.length === 0 ? (
             <Typography variant="h6" textAlign="center" mt={3}>
               No recipe post related to &quot;{searchKeyword}&quot;
             </Typography>
