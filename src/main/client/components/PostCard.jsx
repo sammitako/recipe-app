@@ -59,7 +59,7 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
         <CardHeader
           sx={{ zIndex: 10 }}
           avatar={
-            profileImgUrl ? (
+            userProfileImgUrl ? (
               <Avatar
                 src={userProfileImgUrl}
                 alt={`${userFirstName} ${userLastName}`}

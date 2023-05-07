@@ -18,34 +18,33 @@ function Navbar() {
   const { data: session, status } = useSession();
   const [currentUser, setCurrentUser] = useAtom(currentUserJotai);
 
-  const fetchUserData = async () => {
-    if (session && session.user) {
-      const { email } = session.user;
-
-      try {
-        const response = await axios.get(
-          process.env.NEXT_PUBLIC_BASE_API_URL + `/userByEmail/${email}`
-        );
-        if (response.status === 200) {
-          const user = response.data;
-          setCurrentUser({
-            userId: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            profileImgUrl: user.profileImgUrl,
-          });
-        } else {
-          console.log("Error finding user");
-        }
-      } catch (error) {
-        console.log("Error finding user:", error);
-      }
-    }
-  };
-
   useEffect(() => {
     console.log("Jotai currentUser:>> ", currentUser);
     if (session && session.user) {
+      const fetchUserData = async () => {
+        if (session && session.user) {
+          const { email } = session.user;
+
+          try {
+            const response = await axios.get(
+              process.env.NEXT_PUBLIC_BASE_API_URL + `/userByEmail/${email}`
+            );
+            if (response.status === 200) {
+              const user = response.data;
+              setCurrentUser({
+                userId: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                profileImgUrl: user.profileImgUrl,
+              });
+            } else {
+              console.log("Error finding user");
+            }
+          } catch (error) {
+            console.log("Error finding user:", error);
+          }
+        }
+      };
       fetchUserData();
     }
   }, [session]);

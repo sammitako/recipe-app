@@ -12,14 +12,15 @@ const Profile = () => {
   const { data: session, status } = useSession();
   const [currentUser, setCurrentUser] = useAtom(currentUserJotai);
   const [isLoading, setIsLoading] = useState(false);
-  const [firstName, setFirstName] = useState(currentUser?.firstName);
-  const [lastName, setLastName] = useState(currentUser?.lastName);
+  const [firstName, setFirstName] = useState(currentUser?.firstName || "");
+  const [lastName, setLastName] = useState(currentUser?.lastName || "");
 
   const handleSaveButtonClick = async (e) => {
     e.preventDefault();
     const updates = {
       firstName: firstName,
       lastName: lastName,
+      profileImgUrl: currentUser.profileImgUrl,
     };
     await handleUpdateUser(updates);
   };
@@ -37,10 +38,19 @@ const Profile = () => {
         console.log("User updated successfully");
 
         // Update the currentUser atom with the updated values
-        setCurrentUser((prevUser) => ({
-          ...prevUser,
-          ...updates,
-        }));
+        setCurrentUser((prevUser) => {
+          const newUser = { ...prevUser };
+          if (updates.hasOwnProperty("firstName")) {
+            newUser.firstName = updates.firstName;
+          }
+          if (updates.hasOwnProperty("lastName")) {
+            newUser.lastName = updates.lastName;
+          }
+          if (updates.hasOwnProperty("profileImgUrl")) {
+            newUser.profileImgUrl = updates.profileImgUrl;
+          }
+          return newUser;
+        });
         // Update user details in the posts
         await axios.patch(
           process.env.NEXT_PUBLIC_BASE_API_URL +
