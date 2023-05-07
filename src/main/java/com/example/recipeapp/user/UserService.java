@@ -60,13 +60,14 @@ public class UserService {
     }
     // For Profile.jsx
     public User updateUserNames(String userId, Map<String, Object> updates) {
+        System.out.println("Updates: " + updates); // Log updates
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            if (updates.containsKey("firstName")) {
+            if (updates.containsKey("firstName") && updates.get("firstName") != null) {
                 user.setFirstName((String) updates.get("firstName"));
             }
-            if (updates.containsKey("lastName")) {
+            if (updates.containsKey("lastName") && updates.get("lastName") != null) {
                 user.setLastName((String) updates.get("lastName"));
             }
             return userRepository.save(user);

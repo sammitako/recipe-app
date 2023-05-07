@@ -101,7 +101,7 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
               <SettingButton postId={id} />
             ) : null
           }
-          title={userFullName?.trim() !== "" ? userFullName : "Deleted User"}
+          title={userFirstName ? userFullName : "Deleted User"}
           subheader={
             <Moment format="MMM D, YYYY" withTitle>
               {createdAt}
