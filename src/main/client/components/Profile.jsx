@@ -41,6 +41,12 @@ const Profile = () => {
           ...prevUser,
           ...updates,
         }));
+        // Update user details in the posts
+        await axios.patch(
+          process.env.NEXT_PUBLIC_BASE_API_URL +
+            `/updatePostsUserDetails/${currentUser.userId}`,
+          updates
+        );
       } else {
         console.log("Error updating user");
       }

@@ -34,6 +34,33 @@ const Feed = () => {
     }
   };
 
+  const updatePostsBackendUserDetails = async (
+    userId,
+    firstName,
+    lastName,
+    profileImgUrl
+  ) => {
+    try {
+      const response = await axios.patch(
+        process.env.NEXT_PUBLIC_BASE_API_URL +
+          `/updatePostsUserDetails/${userId}`,
+        {
+          firstName,
+          lastName,
+          profileImgUrl,
+        }
+      );
+
+      if (response.status === 200) {
+        console.log("Posts user details updated successfully in backend");
+      } else {
+        console.log("Error updating posts user details in backend");
+      }
+    } catch (error) {
+      console.log("Error updating posts user details in backend:", error);
+    }
+  };
+
   const checkUserAndCreate = async () => {
     return new Promise(async (resolve) => {
       const { email, name, image } = session?.user;
@@ -75,6 +102,13 @@ const Feed = () => {
                   profileImgUrl: image,
                 });
                 console.log("User profileImgUrl updated successfully");
+                // Update the user details in the posts collection in the backend
+                updatePostsBackendUserDetails(
+                  existingUser.data.id,
+                  firstName,
+                  lastName,
+                  image
+                );
               } else {
                 console.log("Error updating user profileImgUrl");
               }

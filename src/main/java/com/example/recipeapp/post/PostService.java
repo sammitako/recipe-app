@@ -24,21 +24,35 @@ public class PostService {
     private final UserRepository userRepository;
     private final MongoTemplate mongoTemplate;
 
-    public List<Post> getPosts() {
+    public List<PostResponse> getPosts() {
         List<Post> posts = postRepository.findAll();
-        posts.forEach(post -> {
-            userRepository.findById(post.getUserId()).ifPresent(user -> {
-                post.setUserFirstName(user.getFirstName());
-                post.setUserLastName(user.getLastName());
-                post.setUserProfileImgUrl(user.getProfileImgUrl());
-            });
-        });
 
-        // Sort the posts by createdAt in descending order
-        posts = posts.stream()
-                .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
+        List<PostResponse> postResponses = posts.stream().map(post -> {
+            PostResponse.PostResponseBuilder builder = PostResponse.builder()
+                    .id(post.getId())
+                    .userId(post.getUserId())
+                    .title(post.getTitle())
+                    .content(post.getContent())
+                    .category(post.getCategory())
+                    .ingredients(post.getIngredients())
+                    .coverImgUrl(post.getCoverImgUrl())
+                    .createdAt(post.getCreatedAt());
+
+            userRepository.findById(post.getUserId()).ifPresent(user -> {
+                builder.userFirstName(user.getFirstName());
+                builder.userLastName(user.getLastName());
+                builder.userProfileImgUrl(user.getProfileImgUrl());
+            });
+
+            return builder.build();
+        }).collect(Collectors.toList());
+
+        // Sort the post responses by createdAt in descending order
+        postResponses = postResponses.stream()
+                .sorted(Comparator.comparing(PostResponse::getCreatedAt).reversed())
                 .collect(Collectors.toList());
-        return posts;
+
+        return postResponses;
     }
 
     public void updatePostsUserDetails(String userId, String firstName, String lastName, String profileImgUrl) {
