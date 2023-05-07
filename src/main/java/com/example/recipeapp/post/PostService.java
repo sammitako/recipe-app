@@ -70,12 +70,16 @@ public class PostService {
         posts.addAll(ingredientsPosts);
 
         // Search in User collection
-        List<User> users = userRepository.findByFirstNameRegexOrLastNameRegex(kwd, kwd);
+//        List<User> users = userRepository.findByFirstNameRegexOrLastNameRegex(kwd, kwd);
+
+        // Search in User collection
+        List<User> users = userRepository.findByFullNameRegexOrEmailRegex(kwd, kwd);
 
         // Get the userIds of the matching users
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
 
         // Add any posts written by the matching users to the posts list
+        posts.addAll(postRepository.findByUserIdIn(userIds));
         posts.addAll(postRepository.findByUserIdIn(userIds));
 
         return new ArrayList<>(posts);

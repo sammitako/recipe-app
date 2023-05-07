@@ -7,11 +7,35 @@ import Layout from "./Layout";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useAtom } from "jotai";
-import { currentUserJotai } from "main/libs/jotai";
+import { currentUserJotai, postListJotai } from "main/libs/jotai";
 
 const Feed = () => {
   const { data: session, status } = useSession();
   const [userCreationAttempted, setUserCreationAttempted] = useState(false);
+  const [posts, setPosts] = useAtom(postListJotai);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+
+  const fetchPostList = async () => {
+    setIsLoading(true);
+
+    try {
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_BASE_API_URL + "/posts"
+      );
+      setPosts(response.data);
+      console.log("Fetched posts:", response.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPostList();
+  }, []);
 
   const checkUserAndCreate = async () => {
     return new Promise(async (resolve) => {
@@ -91,10 +115,25 @@ const Feed = () => {
           >
             What&apos;s your dinner plan?
           </Typography>
-          <SearchBar />
+          <SearchBar
+            setSearchKeyword={setSearchKeyword}
+            setSearchResults={setSearchResults}
+          />
           <CreateButton />
         </Box>
-        <PostList />
+        <Box color="text.secondary" sx={{ pb: 3, ml: 5 }}>
+          <Typography>
+            Result:{" "}
+            {searchResults?.length === 0
+              ? posts?.length
+              : searchResults?.length}
+          </Typography>
+        </Box>
+        <PostList
+          posts={posts}
+          searchResults={searchResults}
+          isLoading={isLoading}
+        />
       </Container>
     </Layout>
   );
