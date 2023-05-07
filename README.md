@@ -6,7 +6,7 @@ Recipe app is a platform where users can upload their recipes and search for rec
   - Unique email is required.
   - Profile picture on app first reflects to those two providers' profile images when registered.
     - However, if admin changes image deliberately on database, it will reflect current profileImgUrl data from database.
-    - Yet, if profileImgUrl is empty, it will reflect two providers' profile images. 
+    - Yet, if profileImgUrl entry is empty in database, it will reflect two providers' profile images and restore those images in database. 
 - Update my account
   - Firstname, Lastname only
   - Profile picture will be updated when profile images from  those two provider updated.
