@@ -29,7 +29,7 @@ const Profile = () => {
     try {
       const response = await axios.patch(
         process.env.NEXT_PUBLIC_BASE_API_URL +
-          `/updateUser/${currentUser.userId}`,
+          `/updateUserNames/${currentUser.userId}`,
         updates
       );
       if (response.status === 200) {
