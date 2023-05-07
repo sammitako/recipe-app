@@ -3,14 +3,19 @@ Recipe app is a platform where users can upload their recipes and search for rec
 
 ### Features
 - Login and logout (Facebook, Google)
-  - Unique email needed
+  - Unique email is required.
+  - Profile picture on app always reflects to those two provider's profile images.
 - Update my account
   - Firstname, Lastname only
+  - Profile picture will be updated when profile images from  those two provider updated.
+  - Updates are applied to related posts as well.
 - Create my recipes
-  - Title, Category, Ingredients, Recipe method, Cover image needed (form validation)
+  - Title, Category, Ingredients, Recipe method, Cover image are required. (form validation)
+  - Category data is provided from backend.
+  - Ingredients are made from users and stored in mongoDB. (some are provided from frontend)
 - Update my recipes (restricted to my post only)
 - Delete my recipes (restricted to my post only)
-- View only my recipes or everything
+- View only my recipes or every recipe
 - Search recipes
   - with post indexed
   - with user indexed
@@ -29,7 +34,7 @@ Recipe app is a platform where users can upload their recipes and search for rec
 ## Getting Started
 1. Docker should be installed on local machine.
     ```shell
-    docker compuse up
+    docker compose up
     ```
    Make sure installed containers are running: `mongo_db` and `mongo_express`
 2. Create database called `recipe-api-db` at http://localhost:8081.
