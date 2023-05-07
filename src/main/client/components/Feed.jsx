@@ -41,7 +41,10 @@ const Feed = () => {
       const response = await axios.patch(
         process.env.NEXT_PUBLIC_BASE_API_URL +
           `/updatePostsUserDetails/${userId}`,
+        // BUG: profileImgUrl updated -> firstName, lastName removed
         {
+          firstName,
+          lastName,
           profileImgUrl,
         }
       );
@@ -118,9 +121,11 @@ const Feed = () => {
                 console.log("User profileImgUrl updated successfully");
                 // Update the user details in the posts collection in the backend
                 updatePostsBackendUserDetails(
+                  // BUG: profileImgUrl updated -> firstName, lastName removed
                   existingUser.data.id,
                   existingUser.data.firstName,
                   existingUser.data.lastName,
+                  // existingUser.data.profileImgUrl || image
                   image
                 );
               } else {
