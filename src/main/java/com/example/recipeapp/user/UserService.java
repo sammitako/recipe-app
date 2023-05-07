@@ -36,8 +36,24 @@ public class UserService {
     }
     public User updateUser(User user) {
         // Check if the user exists before trying to update it
-        if (userRepository.existsById(user.getId())) {
-            return userRepository.save(user);
+        Optional<User> optionalUser = userRepository.findById(user.getId());
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+
+            // Update the firstName and lastName only if they are not null
+            if (user.getFirstName() != null) {
+                existingUser.setFirstName(user.getFirstName());
+            }
+            if (user.getLastName() != null) {
+                existingUser.setLastName(user.getLastName());
+            }
+
+            // Update the profileImgUrl only if it's not null
+            if (user.getProfileImgUrl() != null) {
+                existingUser.setProfileImgUrl(user.getProfileImgUrl());
+            }
+
+            return userRepository.save(existingUser);
         } else {
             throw new ResourceNotFoundException("User not found with id: " + user.getId());
         }

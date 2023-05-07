@@ -21,13 +21,13 @@ public class PostController {
 
     @GetMapping(value="/posts")
     @CrossOrigin
-    public ResponseEntity<List<PostResponse>> getPosts() {
+    public ResponseEntity<List<PostDTO>> getPosts() {
         return ResponseEntity.ok(postService.getPosts());
     }
 
     @GetMapping("/post/{postId}")
     @CrossOrigin
-    public ResponseEntity<Post> searchPostById(@PathVariable String postId) {
+    public ResponseEntity<PostDTO> searchPostById(@PathVariable String postId) {
         return ResponseEntity.ok(postService.searchPostById(postId));
     }
     @PatchMapping("/updatePostsUserDetails/{userId}")
@@ -46,7 +46,7 @@ public class PostController {
     }
     @GetMapping("/search")
     @CrossOrigin
-    public ResponseEntity<List<Post>> searchPosts(
+    public ResponseEntity<List<PostDTO>> searchPosts(
             @RequestParam(required = false) String kwd) { // http://localhost:8080/api/v1/search?kwd=searchingText
         return ResponseEntity.ok(postService.searchPosts(kwd));
     }

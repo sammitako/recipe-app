@@ -24,54 +24,32 @@ public class PostService {
     private final UserRepository userRepository;
     private final MongoTemplate mongoTemplate;
 
-    public List<PostResponse> getPosts() {
+    public List<PostDTO> getPosts() {
         List<Post> posts = postRepository.findAll();
-
-        List<PostResponse> postResponses = posts.stream().map(post -> {
-            PostResponse.PostResponseBuilder builder = PostResponse.builder()
-                    .id(post.getId())
-                    .userId(post.getUserId())
-                    .title(post.getTitle())
-                    .content(post.getContent())
-                    .category(post.getCategory())
-                    .ingredients(post.getIngredients())
-                    .coverImgUrl(post.getCoverImgUrl())
-                    .createdAt(post.getCreatedAt());
-
-            userRepository.findById(post.getUserId()).ifPresent(user -> {
-                builder.userFirstName(user.getFirstName());
-                builder.userLastName(user.getLastName());
-                builder.userProfileImgUrl(user.getProfileImgUrl());
-            });
-
-            return builder.build();
-        }).collect(Collectors.toList());
-
-        // Sort the post responses by createdAt in descending order
-        postResponses = postResponses.stream()
-                .sorted(Comparator.comparing(PostResponse::getCreatedAt).reversed())
+        return posts.stream()
+                .map(this::convertToPostDTO)
+                .sorted(Comparator.comparing(PostDTO::getCreatedAt).reversed())
                 .collect(Collectors.toList());
-
-        return postResponses;
     }
 
     public void updatePostsUserDetails(String userId, String firstName, String lastName, String profileImgUrl) {
-        List<Post> posts = postRepository.findByUserId(userId);
+        Optional<User> userOptional = userRepository.findById(userId);
 
-        posts.forEach(post -> {
-            post.setUserFirstName(firstName);
-            post.setUserLastName(lastName);
-            post.setUserProfileImgUrl(profileImgUrl);
-        });
-
-        postRepository.saveAll(posts);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setProfileImgUrl(profileImgUrl);
+            userRepository.save(user);
+        }
     }
 
-    public Post searchPostById(String postId) {
-        return postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Post with id: [" + postId + "] not found"));
+    public PostDTO searchPostById(String postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Post with id: [" + postId + "] not found"));
+        return convertToPostDTO(post);
     }
 
-    public List<Post> searchPosts(String kwd) {
+    public List<PostDTO> searchPosts(String kwd) {
         // Create a regex pattern for the keyword
         Pattern pattern = Pattern.compile(kwd, Pattern.CASE_INSENSITIVE);
 
@@ -111,17 +89,45 @@ public class PostService {
         // Add any posts written by the matching users to the posts list
         posts.addAll(postRepository.findByUserIdIn(userIds));
 
-        return new ArrayList<>(posts);
+        List<Post> postsList = new ArrayList<>(posts);
+        return postsList.stream()
+                .map(this::convertToPostDTO)
+                .collect(Collectors.toList());
     }
+
+    private PostDTO convertToPostDTO(Post post) {
+        PostDTO postDTO = new PostDTO(
+                post.getId(),
+                post.getUserId(),
+                null, // userFirstName
+                null, // userLastName
+                null, // userProfileImgUrl
+                post.getTitle(),
+                post.getContent(),
+                post.getCategory(),
+                post.getIngredients(),
+                post.getCoverImgUrl(),
+                post.getCreatedAt()
+        );
+
+        userRepository.findById(post.getUserId()).ifPresent(user -> {
+            postDTO.setUserFirstName(user.getFirstName());
+            postDTO.setUserLastName(user.getLastName());
+            postDTO.setUserProfileImgUrl(user.getProfileImgUrl());
+        });
+
+        return postDTO;
+    }
+
 
 
     public Post createPost(Post post) {
         Optional<User> userOptional = userRepository.findById(post.getUserId());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            post.setUserFirstName(user.getFirstName());
-            post.setUserLastName(user.getLastName());
-            post.setUserProfileImgUrl(user.getProfileImgUrl());
+//            post.setUserFirstName(user.getFirstName());
+//            post.setUserLastName(user.getLastName());
+//            post.setUserProfileImgUrl(user.getProfileImgUrl());
         }
         return postRepository.save(post);
     }

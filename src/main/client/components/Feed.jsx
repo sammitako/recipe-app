@@ -104,7 +104,9 @@ const Feed = () => {
               const updateResponse = await axios.patch(
                 process.env.NEXT_PUBLIC_BASE_API_URL +
                   `/updateUserProfileImgUrl/${existingUser?.data?.id}`, // userId -> id
-                { profileImgUrl: image }
+                {
+                  profileImgUrl: image,
+                }
               );
 
               console.log("Update response:", updateResponse);

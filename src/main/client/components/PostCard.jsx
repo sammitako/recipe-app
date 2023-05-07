@@ -44,7 +44,9 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
     ingredients,
     coverImgUrl,
   } = post;
-  const userFullName = userFirstName?.concat(" ", userLastName);
+  const [userFullName, setUserFullName] = useState(
+    userFirstName?.concat(" ", userLastName)
+  );
   const [isLoadingImage, setIsLoadingImage] = useState(true);
   const [currentUser, setCurrentUser] = useAtom(currentUserJotai);
 
@@ -52,6 +54,13 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
     setIsLoadingImage(false);
   };
   console.log("post:>>", post);
+
+  useEffect(() => {
+    // Logic to update userFullName and userFirstName when currentUser state changes
+    if (currentUser.userId === userId) {
+      setUserFullName(currentUser.firstName?.concat(" ", currentUser.lastName));
+    }
+  }, [currentUser]);
 
   return (
     <Card sx={{ maxWidth: 345, position: "relative" }}>
@@ -92,7 +101,7 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
               <SettingButton postId={id} />
             ) : null
           }
-          title={userFirstName ? userFullName : "Deleted User"}
+          title={userFullName?.trim() !== "" ? userFullName : "Deleted User"}
           subheader={
             <Moment format="MMM D, YYYY" withTitle>
               {createdAt}
