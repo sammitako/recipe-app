@@ -51,6 +51,13 @@ const Feed = () => {
             "Image from existing user:",
             existingUser.data.profileImgUrl
           );
+          // Set the updated user data for the currentUser state
+          setCurrentUser({
+            userId: existingUser.data.id,
+            firstName: existingUser.data.firstName,
+            lastName: existingUser.data.lastName,
+            profileImgUrl: existingUser.data.profileImgUrl,
+          });
 
           // Update the user's profileImgUrl if it has changed
           if (existingUser.data.profileImgUrl !== image) {
