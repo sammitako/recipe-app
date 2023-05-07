@@ -115,6 +115,27 @@ const Feed = () => {
     });
   };
 
+  const updatePostsUserDetails = (
+    userId,
+    firstName,
+    lastName,
+    profileImgUrl
+  ) => {
+    const updatedPosts = posts.map((post) => {
+      if (post.userId === userId) {
+        return {
+          ...post,
+          userFirstName: firstName,
+          userLastName: lastName,
+          userProfileImgUrl: profileImgUrl,
+        };
+      }
+      return post;
+    });
+
+    setPosts(updatedPosts);
+  };
+
   useEffect(() => {
     if (session && session?.user && !userCreationAttempted) {
       checkUserAndCreate().then(() => {
@@ -125,7 +146,18 @@ const Feed = () => {
 
   useEffect(() => {
     fetchPostList();
-  }, []);
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (currentUser) {
+      updatePostsUserDetails(
+        currentUser.userId,
+        currentUser.firstName,
+        currentUser.lastName,
+        currentUser.profileImgUrl
+      );
+    }
+  }, [currentUser]);
 
   return (
     <Layout>

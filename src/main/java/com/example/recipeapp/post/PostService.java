@@ -26,15 +26,13 @@ public class PostService {
 
     public List<Post> getPosts() {
         List<Post> posts = postRepository.findAll();
-        for (Post post : posts) {
-            Optional<User> userOptional = userRepository.findById(post.getUserId());
-            if (userOptional.isPresent()) {
-                User user = userOptional.get();
+        posts.forEach(post -> {
+            userRepository.findById(post.getUserId()).ifPresent(user -> {
                 post.setUserFirstName(user.getFirstName());
                 post.setUserLastName(user.getLastName());
                 post.setUserProfileImgUrl(user.getProfileImgUrl());
-            }
-        }
+            });
+        });
 
         // Sort the posts by createdAt in descending order
         posts = posts.stream()

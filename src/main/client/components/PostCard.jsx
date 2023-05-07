@@ -36,7 +36,7 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
     userId,
     userFirstName,
     userLastName,
-    profileImgUrl,
+    userProfileImgUrl,
     createdAt,
     title,
     content,
@@ -61,7 +61,7 @@ const PostCard = ({ post, expanded, handleExpandClick }) => {
           avatar={
             profileImgUrl ? (
               <Avatar
-                src={profileImgUrl}
+                src={userProfileImgUrl}
                 alt={`${userFirstName} ${userLastName}`}
                 onError={(e) => {
                   e.target.onerror = null;
