@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
@@ -17,9 +18,12 @@ public class Post {
     @Id
     private String id;
     private String userId;
+    @Transient
     private String userFirstName;
+    @Transient
     private String userLastName;
-    private String profileImgUrl;
+    @Transient
+    private String userProfileImgUrl;
     private String title;
     private String content;
     private Category category;
