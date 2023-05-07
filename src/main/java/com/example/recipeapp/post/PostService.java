@@ -97,7 +97,7 @@ public class PostService {
             User user = userOptional.get();
             post.setUserFirstName(user.getFirstName());
             post.setUserLastName(user.getLastName());
-            post.setProfileImgUrl(user.getProfileImgUrl());
+            post.setUserProfileImgUrl(user.getProfileImgUrl());
         }
         return postRepository.save(post);
     }
