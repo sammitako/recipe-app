@@ -11,8 +11,8 @@ import java.util.Optional;
 public interface UserRepository extends MongoRepository<User, String> {
 //    @Query("{$or:[{'firstName':{$regex:?0,$options:'i'}},{'lastName':{$regex:?1,$options:'i'}}]}")
 //    List<User> findByFirstNameRegexOrLastNameRegex(String firstName, String lastName);
-    @Query("{'$or': [{'firstName': {$regex: ?0, $options: 'i'}, 'lastName': {$regex: ?1, $options: 'i'}}, {'email': {$regex: ?2, $options: 'i'}}]}")
-    List<User> findByFullNameRegexOrEmailRegex(String firstNameRegex, String lastNameRegex, String emailRegex);
+    @Query("{'$or': [{'firstName': {$regex: ?0, $options: 'i'}}, {'lastName': {$regex: ?0, $options: 'i'}}, {'firstName': {$regex: ?1, $options: 'i'}, 'lastName': {$regex: ?2, $options: 'i'}}, {'email': {$regex: ?3, $options: 'i'}}]}")
+    List<User> findByFullNameRegexOrEmailRegex(String nameRegex, String firstNameRegex, String lastNameRegex, String emailRegex);
 
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);

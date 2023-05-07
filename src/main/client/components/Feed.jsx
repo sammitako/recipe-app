@@ -124,16 +124,20 @@ const Feed = () => {
         <Box color="text.secondary" sx={{ pb: 3, ml: 5 }}>
           <Typography>
             Result:{" "}
-            {searchResults?.length === 0
-              ? posts?.length
-              : searchResults?.length}
+            {searchKeyword.length === 0 ? posts?.length : searchResults?.length}
           </Typography>
         </Box>
-        <PostList
-          posts={posts}
-          searchResults={searchResults}
-          isLoading={isLoading}
-        />
+        {searchKeyword && searchResults.length === 0 ? (
+          <Typography variant="h6" textAlign="center" mt={3}>
+            No recipe post related to "{searchKeyword}"
+          </Typography>
+        ) : (
+          <PostList
+            posts={posts}
+            searchResults={searchResults}
+            isLoading={isLoading}
+          />
+        )}
       </Container>
     </Layout>
   );

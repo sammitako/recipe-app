@@ -78,7 +78,7 @@ public class PostService {
         String lastName = nameParts.length > 1 ? nameParts[1] : "";
 
         // Search in User collection
-        List<User> users = userRepository.findByFullNameRegexOrEmailRegex(firstName, lastName, kwd);
+        List<User> users = userRepository.findByFullNameRegexOrEmailRegex(kwd, firstName, lastName, kwd);
 
         // Get the userIds of the matching users
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
