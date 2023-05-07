@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @CrossOrigin(value="http://localhost:3000")
@@ -29,7 +30,20 @@ public class PostController {
     public ResponseEntity<Post> searchPostById(@PathVariable String postId) {
         return ResponseEntity.ok(postService.searchPostById(postId));
     }
+    @PatchMapping("/updatePostsUserDetails/{userId}")
+    @CrossOrigin
+    public ResponseEntity<String> updatePostsUserDetails(
+            @PathVariable String userId,
+            @RequestBody Map<String, String> userDetails
+    ) {
+        String firstName = userDetails.get("firstName");
+        String lastName = userDetails.get("lastName");
+        String profileImgUrl = userDetails.get("profileImgUrl");
 
+        postService.updatePostsUserDetails(userId, firstName, lastName, profileImgUrl);
+
+        return ResponseEntity.ok("Posts user details updated successfully");
+    }
     @GetMapping("/search")
     @CrossOrigin
     public ResponseEntity<List<Post>> searchPosts(

@@ -41,6 +41,18 @@ public class PostService {
         return posts;
     }
 
+    public void updatePostsUserDetails(String userId, String firstName, String lastName, String profileImgUrl) {
+        List<Post> posts = postRepository.findByUserId(userId);
+
+        posts.forEach(post -> {
+            post.setUserFirstName(firstName);
+            post.setUserLastName(lastName);
+            post.setUserProfileImgUrl(profileImgUrl);
+        });
+
+        postRepository.saveAll(posts);
+    }
+
     public Post searchPostById(String postId) {
         return postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Post with id: [" + postId + "] not found"));
     }
