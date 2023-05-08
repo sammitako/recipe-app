@@ -40,14 +40,9 @@ Recipe app is a platform where users can upload their recipes and search for rec
     docker compose up
     ```
    Make sure installed containers are running: `mongo_db` and `mongo_express`
-2. Go to `client` directory.
-    ```shell
-    yarn
-    yarn dev
-   # http://localhost:3000
-    ```
-3. Create database called `recipe-api-db` at http://localhost:8081.
-4. Create the index on post and user fields:</br>
+
+2. Create database called `recipe-api-db` at http://localhost:8081.
+3. Create the index on post and user fields:</br>
       1) Open your web browser and go to http://localhost:8081.
       2) Click on the `recipe-api-db`  database.
       3) Click on the `post` collection.
@@ -69,6 +64,12 @@ Recipe app is a platform where users can upload their recipes and search for rec
             "lastName": 1
          }
          ```
+4. Go to `client` directory under `src/main` directory.
+    ```shell
+    yarn
+    yarn dev
+   # http://localhost:3000
+   ```
 ## About MongoDB Search
 1. <strong>Stop Words</strong> <br />MongoDB's full-text search feature ignores certain common words known as stop words (like "is", "on", "the", "a", etc.). These are words that appear frequently in text and are not useful for search. This might be the reason why searching for "only" is not returning any results.
 <br />
